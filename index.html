@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>The Code Highlighter</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="theStyle.css" rel="stylesheet">
+
+</head>
+<body>
+
+    <div class="container carcass">
+        <div class="row">
+            <div class="col">
+                <h4>C# source code: </h4>
+            </div>
+            <div class="col">
+                <h4>HTML output: </h4>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <textarea class="form-control" id="csharp_source_code" style="height: 500px" oninput="checkTextarea()"></textarea>
+            </div>
+            <div class="col">
+                <textarea class="form-control" placeholder="Insert the HTML from this window into your html." id="csharp_source_code_converted_into_html" style="height: 500px"></textarea>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <input id="highlightButtonId" class="highlightButton" type="button" value="Highlight" onclick="convert();" disabled>
+            </div>
+        </div>
+    </div>
+
+    <div id="previewOutput" class="container carcass" style="display: none">
+        <div class="row">
+            <div class="col">
+                <h4>Preview output: </h4>
+                <br>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div id="finalResultPreview"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="formatter.js"></script>
+    <script src="textareaChange.js"></script>
+
+</body>
+</html>

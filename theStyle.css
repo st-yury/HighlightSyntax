@@ -1,0 +1,38 @@
+.carcass {
+  margin-top: 50px;
+  margin-left: 50px;
+}
+
+.highlightButton {
+  background-color: #f41111;
+  color: #ffffff; 
+  font-size: 18px;
+  padding: 13px 30px; /* 13 pixels on top and bottom, 30 pixels on left and right */ /* top right bottom left*/
+  margin: 20px 0px 20px 5px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  box-shadow: 0 5px 10px #ccc;
+}
+
+.highlightButton:hover {
+  background-color: #ff0000;
+  box-shadow: 0 10px 20px #ccc;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.highlightButton:active {
+  opacity: 0.75; /* Reduces the opacity of the button when clicked */
+  border-radius: 6px;
+}
+
+.highlightButton[disabled] {
+  background-color: #cccccc;
+  color: #666666;
+  pointer-events: none;
+}
+
+textarea {
+  box-shadow: inset 1px 1px 3px #aeadad;
+}
