@@ -10,7 +10,7 @@
       "override", "params", "private", "protected", "public", "unchecked",
       "ref", "sbyte", "sealed", "short", "string", "virtual", " where ",
       "struct", "switch", "this", "with", "true", "try", "void", "var ",
-      "unsafe", "ushort", "using", "typeof", "volatile", "<char", "new("
+      "unsafe", "ushort", "using", "typeof", "volatile", "<char", "new(", "int."
     ];
 
     const csharpBehaviorSetOfKeywords = ["return", "if", "while", "foreach", "for ", "throw", "else"];
@@ -339,6 +339,13 @@
                                 if(_ === "int[") {
                                     
                                     charAccumulator = charAccumulator.replace(_, `<span style="color: #0000FF">int</span>[`);    
+                                    
+                                    newLine += charAccumulator;
+                                    charAccumulator = "";
+                                }
+                                if(_ === "int.") {
+                                    
+                                    charAccumulator = charAccumulator.replace(_, `<span style="color: #0000FF">int</span>.`);    
                                     
                                     newLine += charAccumulator;
                                     charAccumulator = "";
