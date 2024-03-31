@@ -25,7 +25,7 @@
 
     const additionalKeywordChars = 
     [
-        " ", "[", "]", "(", ")", "=", ".", "{", "}", ";", "/"
+        " ", "[", "]", "(", ")", "=", ".", "{", "}", ";", "/", ",", "&gt;"
     ];
     
     function specialCharsShielding(theCode) {
@@ -277,11 +277,11 @@
 
                         additionalKeywordChars.forEach(char => {
 
-                            if(theCode.substring(i, i + keyword.length + 1) === keyword + char) {
+                            if(theCode.substring(i, i + keyword.length + char.length) === keyword + char) {
                                 
                                 let theCharBeforeTheKeyword = theCode.substring(i - 1, i);
 
-                                if(theCharBeforeTheKeyword !== "" && isNotAlphanumeric(theCharBeforeTheKeyword)) {
+                                if(theCharBeforeTheKeyword !== "" && isNotAlphanumeric(theCharBeforeTheKeyword) || (i === 0 && theCharBeforeTheKeyword === '')) {
 
                                     theCode = theCode.substring(0, i) + `<${tag}>${keyword}</${tag}>` + theCode.substring(i + keyword.length, theCode.length);
                                     i += `<${tag}>${keyword}</${tag}>`.length + 1;                                    
@@ -338,6 +338,49 @@
         return theCode;
     }
 
+    function detectTypesDefinitions(theCode) {
+        
+        let ignoreOpenLenght = "<ignore>".length;
+        let ignoreCloseLenght = "</ignore>".length;
+
+        let ignore = false;
+        let insideClassDef = false;
+        let typeDefNames = [];
+        let buffer = "";
+
+        for(let i = 0; i <= theCode.length; i++) {
+            
+            if(theCode.substring(i, i + ignoreOpenLenght) === "<ignore>") {
+                ignore = true;
+            }
+            else 
+            if(theCode.substring(i, i + ignoreCloseLenght) === "</ignore>") {
+                ignore = false;
+            }
+
+            if(theCode.substring(i, i + 5) === "class" && !ignore && !insideClassDef) {
+                buffer = "";
+                insideClassDef = true;
+                i += 5;
+            }
+
+            if(insideClassDef && !ignore) {
+                
+                insideChar = false;
+
+                buffer += theCode[i];
+            }
+
+            if(theCode[i] === "{" && !ignore && insideClassDef) {
+                insideClassDef = false;
+                typeDefNames.push(buffer);
+                buffer = "";
+            }
+        }
+
+        return theCode;
+    }
+
     function colorize(theCode) {
         
         let divPreStart = '<div style=\"background: #ffffff; overflow:auto;width:auto;padding:.2em .6em;\"><pre style=\"margin: 0; line-height: 125%\">';
@@ -359,6 +402,11 @@
 
         theCode = detectSeparateChars(theCode);
         theCode = addColorSpanTags(theCode, "chr", "<span style=\"color: #FF3131\">");
+
+        theCode = detectTypesDefinitions(theCode);
+        //theCode = addColorSpanTags(theCode, "typeDef", "<span style=\"color: #FF3131\">");
+
+
 
         //theCode = highlightCustomTypes(theCode); 
         //theCode = highlightNonStaticMethods(theCode); <methodName><span style="color: #7c3f00"> <span style="color: #0b856c">
