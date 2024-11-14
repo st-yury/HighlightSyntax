@@ -10,7 +10,7 @@
         "override", "params", "private", "protected", "public", "unchecked",
         "ref", "sbyte", "sealed", "short", "string", "virtual", "where",
         "struct", "switch", "this", "with", "true", "try", "void", "var",
-        "unsafe", "ushort", "using", "typeof", "volatile", "is"
+        "unsafe", "ushort", "using", "typeof", "volatile", "is", "required"
     ];
 
     const csharpBehaviorSetOfKeywords = 
@@ -378,6 +378,11 @@
             }
         }
 
+        typeDefNames.forEach(_ => {
+            theCode = theCode.replaceAll(_, "<typeDef>" + _ + "</typeDef>");
+        });
+        //typeDefNames = typeDefNames.map(item => item.replaceAll("</span></stdKeyword>", "").replaceAll("{", ""));
+
         return theCode;
     }
 
@@ -404,7 +409,7 @@
         theCode = addColorSpanTags(theCode, "chr", "<span style=\"color: #FF3131\">");
 
         theCode = detectTypesDefinitions(theCode);
-        //theCode = addColorSpanTags(theCode, "typeDef", "<span style=\"color: #FF3131\">");
+        theCode = addColorSpanTags(theCode, "typeDef", "<span style=\"color: #FFAACC\">");
 
 
 
