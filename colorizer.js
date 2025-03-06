@@ -1,15 +1,15 @@
     const csharpStateSetOfKeywords = 
     [ 
         "async", "await", "in", "as", "abstract", "base", "bool", "break", "byte", 
-        "catch", "char", "checked", "class", "const", "continue", "fixed", 
-        "decimal", "default", "delegate", "do", "double", "sizeof",
+        "catch", "char", "checked", "class", "const", "continue", "fixed",
+        "decimal", "default", "delegate", "do", "double", "sizeof", "nameof",
         "enum", "explicit", "extern", "event", "false", "finally", "stackalloc",
         "float", "goto", "implicit", "static", "partial", "case", "readonly",
-        "interface", "internal", "lock", "long", "unit", "get", "set",
+        "interface", "internal", "lock", "long", "unit", "get", "set", "record",
         "namespace", "new", "int", "null", "object", "operator", "out", "ulong",
         "override", "params", "private", "protected", "public", "unchecked",
-        "ref", "sbyte", "sealed", "short", "string", "virtual", "where",
-        "struct", "switch", "this", "with", "true", "try", "void", "var",
+        "ref", "sbyte", "init", "sealed", "short", "string", "virtual", "where",
+        "struct", "switch", "this", "with", "true", "try", "void", "var", "value",
         "unsafe", "ushort", "using", "typeof", "volatile", "is", "required"
     ];
 
@@ -30,8 +30,8 @@
     
     function specialCharsShielding(theCode) {
 
-        for (const [sc, htmlsc] of Object.entries(specialChars)) {
-            theCode = theCode.replaceAll(sc, htmlsc);
+        for (const [sc, schtml] of Object.entries(specialChars)) {
+            theCode = theCode.replaceAll(sc, schtml);
         }
 
         return theCode;
@@ -44,7 +44,7 @@
         let insideTheMultiLineComment = false;
         let insideTheDocComment = false;
         
-        for (index = 0; index < theCode.length - 4; index++) {
+        for (let index = 0; index < theCode.length - 4; index++) {
 
             let twoCharsInSequence = theCode.substring(index, index + 2);
             let fourCharsInSequence = theCode.substring(index, index + 4);
@@ -70,7 +70,7 @@
                 index += "</oneLineComment></ignore>".length;
             }
             else 
-            if (fourCharsInSequence == "/// " 
+            if (fourCharsInSequence === "/// "
             && !insideTheString 
             && !insideTheSingleLineComment 
             && !insideTheMultiLineComment 
@@ -99,8 +99,6 @@
             }
             else
             if(theCode[index] === "\"" && theCode[index - 1] === "\\" && insideTheString && !insideTheSingleLineComment && !insideTheMultiLineComment && !insideTheDocComment) {
-                
-                continue;
             }
             else
             if(theCode[index] === "\"" && insideTheString && !insideTheSingleLineComment && !insideTheMultiLineComment && !insideTheDocComment) {
@@ -149,103 +147,6 @@
         theCode = theCode.replaceAll(`</${tag}>`, `</span></${tag}>`);
 
         return theCode;
-    };
-
-    function isInsideStringOrComment(theCode, startIndex, endIndex) {
-    
-        let substringLeft = theCode.substring(0, startIndex);
-        let substringRight = theCode.substring(endIndex, theCode.length);
-
-        let strOpen = "<str>";
-        let oneLineCommentOpen = "<oneLineComment>";
-        let multiLineCommentOpen = "<multiLineComment>";
-        let docCommentOpen = "<docComment>";
-
-        let strClose = "</str>";
-        let oneLineCommentClose = "</oneLineComment>";
-        let multiLineCommentClose = "</multiLineComment>";
-        let docCommentClose = "</docComment>";
-
-        let someOpenTagLeft = false;
-        let someClosedTagLeft = false;
-        let someOpenTagRight = false;
-        let someClosedTagRight = false;
-
-        for(let i = substringLeft.length; i > 0; i--) {
-            if((substringLeft.substring(i - strOpen.length, i) === strOpen)) {
-                someOpenTagLeft = true;
-                break;
-            }
-            if((substringLeft.substring(i - oneLineCommentOpen.length, i) === oneLineCommentOpen)) {
-                someOpenTagLeft = true;
-                break;
-            }
-            if((substringLeft.substring(i - multiLineCommentOpen.length, i) === multiLineCommentOpen)) {
-                someOpenTagLeft = true;
-                break;
-            }
-            if((substringLeft.substring(i - docCommentOpen.length, i) === docCommentOpen)) {
-                someOpenTagLeft = true;
-                break;
-            }
-            if((substringLeft.substring(i - strClose.length, i) === strClose)) {
-                someClosedTagLeft = true;
-                break;
-            }
-            if((substringLeft.substring(i - oneLineCommentClose.length, i) === oneLineCommentClose)) {
-                someClosedTagLeft = true;
-                break;
-            }
-            if((substringLeft.substring(i - multiLineCommentClose.length, i) === multiLineCommentClose)) {
-                someClosedTagLeft = true;
-                break;
-            }
-            if((substringLeft.substring(i - docCommentClose.length, i) === docCommentClose)) {
-                someClosedTagLeft = true;
-                break;
-            }
-        }
-
-        for(let i = 0; i < substringRight.length; i++) {
-            if((substringRight.substring(i, i + strOpen.length) === strOpen)) {
-                someOpenTagRight = true;
-                break;
-            }
-            if((substringRight.substring(i, i + oneLineCommentOpen.length) === oneLineCommentOpen)) {
-                someOpenTagRight = true;
-                break;
-            }
-            if((substringRight.substring(i, i + multiLineCommentOpen.length) === multiLineCommentOpen)) {
-                someOpenTagRight = true;
-                break;
-            }
-            if((substringRight.substring(i, i + docCommentOpen.length) === docCommentOpen)) {
-                someOpenTagRight = true;
-                break;
-            }
-            if((substringRight.substring(i, i + strClose.length) === strClose)) {
-                someClosedTagRight = true;
-                break;
-            }
-            if((substringRight.substring(i, i + oneLineCommentClose.length) === oneLineCommentClose)) {
-                someClosedTagRight = true;
-                break;
-            }
-            if((substringRight.substring(i, i + multiLineCommentClose.length) === multiLineCommentClose)) {
-                someClosedTagRight = true;
-                break;
-            }
-            if((substringRight.substring(i, i + docCommentClose.length) === docCommentClose)) {
-                someClosedTagRight = true;
-                break;
-            }
-        }
-
-        if(someOpenTagLeft && someClosedTagRight && !someClosedTagLeft && !someOpenTagRight) {
-            return true;
-        }
-    
-        return false;
     }
 
     function isNotAlphanumeric(char) {
@@ -256,20 +157,20 @@
 
         let wrap = (keywords, tag) => {
 
-            let ignoreOpenLenght = "<ignore>".length;
-            let ignoreCloseLenght = "</ignore>".length;
+            let ignoreOpenLength = "<ignore>".length;
+            let ignoreCloseLength = "</ignore>".length;
 
             let ignore = false;
             
             keywords.forEach(keyword => {
 
-                for(i = 0; i <= theCode.length; i++) {
+                for(let i = 0; i <= theCode.length; i++) {
 
-                    if(theCode.substring(i, i + ignoreOpenLenght) === "<ignore>") {
+                    if(theCode.substring(i, i + ignoreOpenLength) === "<ignore>") {
                         ignore = true;
                     }
                     else 
-                    if(theCode.substring(i, i + ignoreCloseLenght) === "</ignore>") {
+                    if(theCode.substring(i, i + ignoreCloseLength) === "</ignore>") {
                         ignore = false;
                     }
 
@@ -302,19 +203,19 @@
 
     function detectSeparateChars(theCode) {
 
-        let ignoreOpenLenght = "<ignore>".length;
-        let ignoreCloseLenght = "</ignore>".length;
+        let ignoreOpenLength = "<ignore>".length;
+        let ignoreCloseLength = "</ignore>".length;
 
         let ignore = false;
         let insideChar = false;
 
         for(let i = 0; i <= theCode.length; i++) {
             
-            if(theCode.substring(i, i + ignoreOpenLenght) === "<ignore>") {
+            if(theCode.substring(i, i + ignoreOpenLength) === "<ignore>") {
                 ignore = true;
             }
             else 
-            if(theCode.substring(i, i + ignoreCloseLenght) === "</ignore>") {
+            if(theCode.substring(i, i + ignoreCloseLength) === "</ignore>") {
                 ignore = false;
             }
 
@@ -338,50 +239,54 @@
         return theCode;
     }
 
-    function detectTypesDefinitions(theCode) {
+    function detectCapitalCaseWords(theCode) {
+
+        let matches = [...theCode.matchAll(/\b([A-Z_][a-zA-Z0-9_]*)\b/g)];
         
-        let ignoreOpenLenght = "<ignore>".length;
-        let ignoreCloseLenght = "</ignore>".length;
+        matches.forEach(match => {
+
+        });
+        
+        return theCode;
+    }
+
+    function detectCapitalCaseMethods(theCode)
+    {
+        let ignoreOpenLength = "<ignore>".length;
+        let ignoreCloseLength = "</ignore>".length;
 
         let ignore = false;
-        let insideClassDef = false;
-        let typeDefNames = [];
-        let buffer = "";
 
-        for(let i = 0; i <= theCode.length; i++) {
+        for(let i = 0; i < theCode.length - 1; i++) {
             
-            if(theCode.substring(i, i + ignoreOpenLenght) === "<ignore>") {
+            if(theCode.substring(i, i + ignoreOpenLength) === "<ignore>") {
                 ignore = true;
             }
             else 
-            if(theCode.substring(i, i + ignoreCloseLenght) === "</ignore>") {
+            if(theCode.substring(i, i + ignoreCloseLength) === "</ignore>") {
                 ignore = false;
             }
 
-            if(theCode.substring(i, i + 5) === "class" && !ignore && !insideClassDef) {
-                buffer = "";
-                insideClassDef = true;
-                i += 5;
+            if(theCode[i] === '.' && !ignore && theCode[i + 1] === theCode[i + 1].toUpperCase()) {
+                
             }
 
-            if(insideClassDef && !ignore) {
-                
+            /*if(theCode[i] === "'" && !ignore && !insideMethod) {
+
+                insideChar = true;
+
+                theCode = theCode.slice(0, i) + "<ignore><chr>" + theCode.slice(i);
+                i += "<ignore><chr>".length;
+            }
+            else
+            if(theCode[i] === "'" && !ignore && insideChar) {
+
                 insideChar = false;
 
-                buffer += theCode[i];
-            }
-
-            if(theCode[i] === "{" && !ignore && insideClassDef) {
-                insideClassDef = false;
-                typeDefNames.push(buffer);
-                buffer = "";
-            }
+                theCode = theCode.slice(0, i + 1) + "</chr></ignore>" + theCode.slice(i + 1);
+                i += "</chr></ignore>".length;
+            }*/
         }
-
-        typeDefNames.forEach(_ => {
-            theCode = theCode.replaceAll(_, "<typeDef>" + _ + "</typeDef>");
-        });
-        //typeDefNames = typeDefNames.map(item => item.replaceAll("</span></stdKeyword>", "").replaceAll("{", ""));
 
         return theCode;
     }
@@ -396,51 +301,38 @@
         theCode = detectCommentsAndStrings(theCode);
         theCode = addColorSpanTags(theCode, "oneLineComment", "<span style=\"color: #008000\">");
         theCode = addColorSpanTags(theCode, "docComment", "<span style=\"color: #90b493\">");
-        theCode = addColorSpanTags(theCode, "str", "<span style=\"color: #D6092D\">");
+        theCode = addColorSpanTags(theCode, "str", "<span style=\"color: #d6092d\">");
         theCode = addColorSpanTags(theCode, "multiLineComment", "<span style=\"color: #008000\">");
         theCode = addColorSpanTags(theCode, "strDollar", "<span style=\"color: #913831\">");
         theCode = addColorSpanTags(theCode, "strAt", "<span style=\"color: #913831\">");
         
         theCode = detectStdKeywords(theCode);
-        theCode = addColorSpanTags(theCode, "stdKeyword", "<span style=\"color: #0000FF\">");
+        theCode = addColorSpanTags(theCode, "stdKeyword", "<span style=\"color: #0000ff\">");
         theCode = addColorSpanTags(theCode, "stdSpecKeyword", "<span style=\"color: #c204b2\">");
 
         theCode = detectSeparateChars(theCode);
-        theCode = addColorSpanTags(theCode, "chr", "<span style=\"color: #FF3131\">");
+        theCode = addColorSpanTags(theCode, "chr", "<span style=\"color: #ff3131\">");
 
-        theCode = detectTypesDefinitions(theCode);
-        theCode = addColorSpanTags(theCode, "typeDef", "<span style=\"color: #FFAACC\">");
+        theCode = detectCapitalCaseWords(theCode);
+        theCode = addColorSpanTags(theCode, "capitalCase", "<span style=\"color: #058bb9\">");
 
+        theCode = detectCapitalCaseMethods(theCode);
+        theCode = addColorSpanTags(theCode, "capitalCaseMethod", "<span style=\"color: #ffaacc\">");
 
-
-        //theCode = highlightCustomTypes(theCode); 
         //theCode = highlightNonStaticMethods(theCode); <methodName><span style="color: #7c3f00"> <span style="color: #0b856c">
         //theCode = highlightStaticMethods(theCode); <span style="color: #0000FF"> <span style="color: #058BB9"> <span style="color: #B209D6">
         
         return `${divPreStart}${theCode}${divPreEnd}`;
     }
-    
-    /*
-    function showLoader() {
-        const loadingIndicator = document.getElementById("loadingSpinner");
-        loadingIndicator.style.display = "block";
-    }
-
-    function hideLoader() {
-        const loadingIndicator = document.getElementById("loadingSpinner");
-        loadingIndicator.style.display = "none";
-    }*/
 
     function convert() {
 
-        //showLoader();
+        let csharpSourceCodeTextarea = document.getElementById('csharp_source_code');
+        let convertedCodeTextarea = document.getElementById('csharp_source_code_converted_into_html');
+        let previewOutputDiv = document.getElementById('previewOutput');
+        let resultPreview = document.getElementById('finalResultPreview');
 
-        var csharpSourceCodeTextarea = document.getElementById('csharp_source_code');
-        var convertedCodeTextarea = document.getElementById('csharp_source_code_converted_into_html');
-        var previewOutputDiv = document.getElementById('previewOutput');
-        var resultPreview = document.getElementById('finalResultPreview');
-        
-        var codeToWorkWith = csharpSourceCodeTextarea.value;
+        let codeToWorkWith = csharpSourceCodeTextarea.value;
 
         if (codeToWorkWith === "") {
             
@@ -451,14 +343,12 @@
             return;
         }
 
-        var colorizedCode = colorize(codeToWorkWith);
+        let colorizedCode = colorize(codeToWorkWith);
 
         convertedCodeTextarea.value = colorizedCode;
 
         resultPreview.innerHTML = colorizedCode;
 
         previewOutputDiv.style.display = 'block';
-
-        //hideLoader()
 
     }
