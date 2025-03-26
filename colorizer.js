@@ -1,6 +1,6 @@
     const csharpStateSetOfKeywords = 
     [ 
-        "async", "await", "in", "as", "abstract", "base", "bool", "break", "byte", 
+        "async", "assembly", "await", "using", "in", "as", "abstract", "base", "bool", "break", "byte",
         "catch", "char", "checked", "class", "const", "continue", "fixed",
         "decimal", "default", "delegate", "do", "double", "sizeof", "nameof",
         "enum", "explicit", "extern", "event", "false", "finally", "stackalloc",
@@ -10,7 +10,7 @@
         "override", "params", "private", "protected", "public", "unchecked",
         "ref", "sbyte", "init", "sealed", "short", "string", "virtual", "where",
         "struct", "switch", "this", "with", "true", "try", "void", "var", "value",
-        "unsafe", "ushort", "using", "typeof", "volatile", "is", "required"
+        "unsafe", "ushort", "typeof", "volatile", "is", "required"
     ];
 
     const csharpBehaviorSetOfKeywords = 
@@ -37,6 +37,7 @@
         return theCode;
     }
 
+    // Refactor later, split into several functions : a separate one for comments, a one for strings, another one for multi-line comments and doc comments
     function detectCommentsAndStrings(theCode) {
         
         let insideTheString = false;
@@ -178,7 +179,9 @@
 
                         additionalKeywordChars.forEach(char => {
 
-                            if(theCode.substring(i, i + keyword.length + char.length) === keyword + char) {
+                            if(
+                                (theCode.substring(i, i + keyword.length + char.length) === keyword + char) ||
+                                (theCode.substring(i + keyword.length, i + keyword.length + char.length) === '\n' && char === ' ')) {
                                 
                                 let theCharBeforeTheKeyword = theCode.substring(i - 1, i);
 
@@ -239,58 +242,6 @@
         return theCode;
     }
 
-    function detectCapitalCaseWords(theCode) {
-
-        let matches = [...theCode.matchAll(/\b([A-Z_][a-zA-Z0-9_]*)\b/g)];
-        
-        matches.forEach(match => {
-
-        });
-        
-        return theCode;
-    }
-
-    function detectCapitalCaseMethods(theCode)
-    {
-        let ignoreOpenLength = "<ignore>".length;
-        let ignoreCloseLength = "</ignore>".length;
-
-        let ignore = false;
-
-        for(let i = 0; i < theCode.length - 1; i++) {
-            
-            if(theCode.substring(i, i + ignoreOpenLength) === "<ignore>") {
-                ignore = true;
-            }
-            else 
-            if(theCode.substring(i, i + ignoreCloseLength) === "</ignore>") {
-                ignore = false;
-            }
-
-            if(theCode[i] === '.' && !ignore && theCode[i + 1] === theCode[i + 1].toUpperCase()) {
-                
-            }
-
-            /*if(theCode[i] === "'" && !ignore && !insideMethod) {
-
-                insideChar = true;
-
-                theCode = theCode.slice(0, i) + "<ignore><chr>" + theCode.slice(i);
-                i += "<ignore><chr>".length;
-            }
-            else
-            if(theCode[i] === "'" && !ignore && insideChar) {
-
-                insideChar = false;
-
-                theCode = theCode.slice(0, i + 1) + "</chr></ignore>" + theCode.slice(i + 1);
-                i += "</chr></ignore>".length;
-            }*/
-        }
-
-        return theCode;
-    }
-
     function colorize(theCode) {
         
         let divPreStart = '<div style=\"background: #ffffff; overflow:auto;width:auto;padding:.2em .6em;\"><pre style=\"margin: 0; line-height: 125%\">';
@@ -305,19 +256,19 @@
         theCode = addColorSpanTags(theCode, "multiLineComment", "<span style=\"color: #008000\">");
         theCode = addColorSpanTags(theCode, "strDollar", "<span style=\"color: #913831\">");
         theCode = addColorSpanTags(theCode, "strAt", "<span style=\"color: #913831\">");
-        
-        theCode = detectStdKeywords(theCode);
-        theCode = addColorSpanTags(theCode, "stdKeyword", "<span style=\"color: #0000ff\">");
-        theCode = addColorSpanTags(theCode, "stdSpecKeyword", "<span style=\"color: #c204b2\">");
 
         theCode = detectSeparateChars(theCode);
         theCode = addColorSpanTags(theCode, "chr", "<span style=\"color: #ff3131\">");
 
-        theCode = detectCapitalCaseWords(theCode);
-        theCode = addColorSpanTags(theCode, "capitalCase", "<span style=\"color: #058bb9\">");
+        theCode = detectStdKeywords(theCode);
+        theCode = addColorSpanTags(theCode, "stdKeyword", "<span style=\"color: #0000ff\">");
+        theCode = addColorSpanTags(theCode, "stdSpecKeyword", "<span style=\"color: #c204b2\">");
 
-        theCode = detectCapitalCaseMethods(theCode);
-        theCode = addColorSpanTags(theCode, "capitalCaseMethod", "<span style=\"color: #ffaacc\">");
+        //theCode = addColorSpanTags(theCode, "capitalCase", "<span style=\"color: #058bb9\">");
+        //theCode = detectCapitalCaseWords(theCode);
+
+        //theCode = detectCapitalCaseMethods(theCode);
+        //theCode = addColorSpanTags(theCode, "capitalCaseMethod", "<span style=\"color: #ffaacc\">");
 
         //theCode = highlightNonStaticMethods(theCode); <methodName><span style="color: #7c3f00"> <span style="color: #0b856c">
         //theCode = highlightStaticMethods(theCode); <span style="color: #0000FF"> <span style="color: #058BB9"> <span style="color: #B209D6">
