@@ -1,163 +1,247 @@
-const csharpStateSetOfKeywords = [
-    "async", "assembly", "await", "using", "in", "as", "abstract", "base", "bool", "break", "byte",
-    "catch", "char", "checked", "class", "const", "continue", "fixed", "bool?", "module", "decimal",
-    "default", "delegate", "do", "double", "double?", "sizeof", "nameof", "enum", "explicit", "extern",
-    "event", "false", "finally", "stackalloc", "mod", "float", "float?", "goto", "implicit", "static",
-    "partial", "case", "readonly", "interface", "internal", "lock", "long", "long?", "unit", "get", "set",
-    "record", "namespace", "new", "int", "int?", "null", "object", "object?", "operator", "out", "ulong",
-    "override", "params", "private", "protected", "public", "unchecked", "where", "ref", "sbyte", "init",
-    "sealed", "short", "string", "string?", "virtual", "struct", "switch", "this", "with", "true", "try",
-    "void", "var", "value", "unsafe", "ushort", "typeof", "volatile", "is", "required", "when", "global"
-];
 
-const csharpBehaviorSetOfKeywords = ["return", "if", "while", "foreach", "for", "throw", "else"];
+   const csharpStateSetOfKeywords =
+    [
+        "async", "assembly", "await", "using", "in", "as", "abstract", "base", "bool", "break", "byte",
+        "catch", "char", "checked", "class", "const", "continue", "fixed", "bool?", "module",
+        "decimal", "default", "delegate", "do", "double", "double?", "sizeof", "nameof",
+        "enum", "explicit", "extern", "event", "false", "finally", "stackalloc", "mod",
+        "float", "float?", "goto", "implicit", "static", "partial", "case", "readonly",
+        "interface", "internal", "lock", "long", "long?", "unit", "get", "set", "record",
+        "namespace", "new", "int", "int?", "null", "object", "object?", "operator", "out", "ulong",
+        "override", "params", "private", "protected", "public", "unchecked", "where",
+        "ref", "sbyte", "init", "sealed", "short", "string", "string?", "virtual",
+        "struct", "switch", "this", "with", "true", "try", "void", "var", "value",
+        "unsafe", "ushort", "typeof", "volatile", "is", "required", "when", "global"
+    ];
 
-const specialChars = { "<": "&lt;", ">": "&gt;" };
+    const csharpBehaviorSetOfKeywords =
+    [
+        "return", "if", "while", "foreach", "for", "throw", "else"
+    ];
 
-const additionalKeywordChars = [
-    " ", "[", "]", "(", ")", "=", ".", "{", "}", ";", "/", ",", "&gt;", ":"
-];
-
-function specialCharsShielding(code) {
-    for (const [char, html] of Object.entries(specialChars)) {
-        code = code.replaceAll(char, html);
-    }
-    return code;
-}
-
-function tagInsert(code, i, tag, open, close) {
-    code = code.slice(0, i) + open + code.slice(i);
-    return [code, i + open.length];
-}
-
-function tagClose(code, i, tag, open, close, offset = 0) {
-    code = code.slice(0, i + offset) + close + code.slice(i + offset);
-    return [code, i + close.length + offset];
-}
-
-function detectCommentsAndStrings(code) {
-    let inside = { str: false, single: false, multi: false, doc: false };
-
-    const openTags = {
-        "//": { key: "single", tag: "oneLineComment" },
-        "/// ": { key: "doc", tag: "docComment" },
-        "\"": { key: "str", tag: "str" },
-        "/*": { key: "multi", tag: "multiLineComment" },
+    const specialChars = {
+        "<" : "&lt;",
+        ">" : "&gt;"
     };
 
-    for (let i = 0; i < code.length - 4; i++) {
-        const two = code.substring(i, i + 2);
-        const four = code.substring(i, i + 4);
-        const isOpen = (tagKey) => !Object.values(inside).some(Boolean) || inside[tagKey];
+    const additionalKeywordChars =
+    [
+        " ", "[", "]", "(", ")", "=", ".", "{", "}", ";", "/", ",", "&gt;", ":"
+    ];
 
-        if (two === "//" && four !== "/// " && isOpen("single")) {
-            [code, i] = tagInsert(code, i, "oneLineComment", "<ignore><oneLineComment>", "</oneLineComment></ignore>");
-            inside.single = true;
-        } else if (code[i] === "\n" && inside.single) {
-            [code, i] = tagClose(code, i, "oneLineComment", "<ignore>", "</oneLineComment></ignore>");
-            inside.single = false;
-        } else if (four === "/// " && isOpen("doc")) {
-            [code, i] = tagInsert(code, i, "docComment", "<ignore><docComment>", "</docComment></ignore>");
-            inside.doc = true;
-        } else if (code[i] === "\n" && inside.doc) {
-            [code, i] = tagClose(code, i, "docComment", "<ignore>", "</docComment></ignore>");
-            inside.doc = false;
-        } else if (code[i] === "\"" && isOpen("str") && code[i - 1] !== "\\") {
-            if (!inside.str) {
-                [code, i] = tagInsert(code, i, "str", "<ignore><str>", "</str></ignore>");
-                inside.str = true;
-            } else {
-                [code, i] = tagClose(code, i, "str", "<ignore>", "</str></ignore>", 1);
-                inside.str = false;
-            }
-        } else if (two === "/*" && isOpen("multi")) {
-            [code, i] = tagInsert(code, i, "multiLineComment", "<ignore><multiLineComment>", "</multiLineComment></ignore>");
-            inside.multi = true;
-        } else if (two === "*/" && inside.multi) {
-            [code, i] = tagClose(code, i, "multiLineComment", "<ignore>", "</multiLineComment></ignore>", 2);
-            inside.multi = false;
-        } else if (code[i] === "$" && !Object.values(inside).some(Boolean)) {
-            code = code.slice(0, i) + "<strDollar>$</strDollar>" + code.slice(i + 1);
-            i += "<strDollar></strDollar>".length;
-        } else if (code[i] === "@" && !Object.values(inside).some(Boolean)) {
-            code = code.slice(0, i) + "<strAt>@</strAt>" + code.slice(i + 1);
-            i += "<strAt></strAt>".length;
+    function specialCharsShielding(theCode) {
+
+        for (const [sc, schtml] of Object.entries(specialChars)) {
+            theCode = theCode.replaceAll(sc, schtml);
         }
+
+        return theCode;
     }
 
-    return code;
-}
+    // Refactor later, split into several functions : a separate one for comments, a one for strings, another one for multi-line comments and doc comments
+    function detectCommentsAndStrings(theCode) {
 
-function addColorSpanTags(code, tag, span) {
-    return code
-        .replaceAll(`<${tag}>`, `<${tag}>${span}`)
-        .replaceAll(`</${tag}>`, `</span></${tag}>`);
-}
+        let insideTheString = false;
+        let insideTheSingleLineComment = false;
+        let insideTheMultiLineComment = false;
+        let insideTheDocComment = false;
 
-function isNotAlphanumeric(char) {
-    return /[^a-zA-Z0-9]/.test(char);
-}
+        for (let index = 0; index < theCode.length - 4; index++) {
 
-function detectStdKeywords(code) {
-    const wrap = (keywords, tag) => {
-        const ignoreOpen = "<ignore>";
-        const ignoreClose = "</ignore>";
-        let ignore = false;
+            let twoCharsInSequence = theCode.substring(index, index + 2);
+            let fourCharsInSequence = theCode.substring(index, index + 4);
 
-        keywords.forEach(keyword => {
-            for (let i = 0; i < code.length; i++) {
-                if (code.substring(i, i + ignoreOpen.length) === ignoreOpen) ignore = true;
-                else if (code.substring(i, i + ignoreClose.length) === ignoreClose) ignore = false;
+            if (twoCharsInSequence === "//"
+            && fourCharsInSequence !== "/// "
+            && !insideTheString
+            && !insideTheSingleLineComment
+            && !insideTheMultiLineComment
+            && !insideTheDocComment) {
 
-                if (!ignore && code.substring(i, i + keyword.length) === keyword) {
-                    for (const char of additionalKeywordChars) {
-                        const nextChar = code.substring(i + keyword.length, i + keyword.length + char.length);
-                        const full = code.substring(i, i + keyword.length + char.length);
-                        if (nextChar === char || (nextChar === '\n' && char === ' ')) {
-                            const prev = code.substring(i - 1, i);
-                            if ((prev && isNotAlphanumeric(prev)) || i === 0) {
-                                code = code.substring(0, i) + `<${tag}>${keyword}</${tag}>` + code.substring(i + keyword.length);
-                                i += `<${tag}>${keyword}</${tag}>`.length;
-                                break;
+                insideTheSingleLineComment = true;
+
+                theCode = theCode.slice(0, index) + "<ignore><oneLineComment>" + theCode.slice(index);
+                index += "<ignore><oneLineComment>".length;
+            }
+            else
+            if (theCode[index] === "\n" && insideTheSingleLineComment) {
+
+                insideTheSingleLineComment = false;
+
+                theCode = theCode.slice(0, index) + "</oneLineComment></ignore>" + theCode.slice(index);
+                index += "</oneLineComment></ignore>".length;
+            }
+            else
+            if (fourCharsInSequence === "/// "
+            && !insideTheString
+            && !insideTheSingleLineComment
+            && !insideTheMultiLineComment
+            && !insideTheDocComment) {
+
+                insideTheDocComment = true;
+
+                theCode = theCode.slice(0, index) + "<ignore><docComment>" + theCode.slice(index);
+                index += "<ignore><docComment>".length;
+            }
+            else
+            if (theCode[index] === "\n" && insideTheDocComment) {
+
+                insideTheDocComment = false;
+
+                theCode = theCode.slice(0, index) + "</docComment></ignore>" + theCode.slice(index);
+                index += "</docComment></ignore>".length;
+            }
+            else
+            if(theCode[index] === "\"" && !insideTheString && !insideTheSingleLineComment && !insideTheMultiLineComment && !insideTheDocComment) {
+
+                insideTheString = true;
+
+                theCode = theCode.slice(0, index) + "<ignore><str>" + theCode.slice(index);
+                index += "<ignore><str>".length;
+            }
+            else
+            if(theCode[index] === "\"" && theCode[index - 1] === "\\" && insideTheString && !insideTheSingleLineComment && !insideTheMultiLineComment && !insideTheDocComment) {
+            }
+            else
+            if(theCode[index] === "\"" && insideTheString && !insideTheSingleLineComment && !insideTheMultiLineComment && !insideTheDocComment) {
+
+                insideTheString = false;
+
+                theCode = theCode.slice(0, index + 1) + "</str></ignore>" + theCode.slice(index + 1); // 1 is length of "
+                index += "</str></ignore>".length;
+            }
+            else
+            if(twoCharsInSequence === "/*" && !insideTheString && !insideTheSingleLineComment && !insideTheDocComment && !insideTheMultiLineComment) {
+
+                insideTheMultiLineComment = true;
+
+                theCode = theCode.slice(0, index) + "<ignore><multiLineComment>" + theCode.slice(index);
+                index += "<ignore><multiLineComment>".length;
+            }
+            else
+            if(twoCharsInSequence === "*/" && !insideTheString && !insideTheSingleLineComment && !insideTheDocComment && insideTheMultiLineComment) {
+
+                insideTheMultiLineComment = false;
+
+                theCode = theCode.slice(0, index + 2) + "</multiLineComment></ignore>" + theCode.slice(index + 2); // 2 is length of */
+                index += "</multiLineComment></ignore>".length;
+            }
+            else
+            if(theCode[index] === "$" && !insideTheString && !insideTheSingleLineComment && !insideTheDocComment && !insideTheMultiLineComment) {
+
+                theCode = theCode.slice(0, index) + "<strDollar>" + theCode.slice(index, index + 1) + "</strDollar>" + theCode.slice(index + 1); // 1 is length of $
+                index = index + "<strDollar>".length + "</strDollar>".length;
+            }
+            else
+            if(theCode[index] === "@" && !insideTheString && !insideTheSingleLineComment && !insideTheDocComment && !insideTheMultiLineComment) {
+
+                theCode = theCode.slice(0, index) + "<strAt>" + theCode.slice(index, index + 1) + "</strAt>" + theCode.slice(index + 1); // 1 is length of $
+                index = index + "<strAt>".length + "</strAt>".length;
+            }
+        }
+
+        return theCode;
+    }
+
+    function addColorSpanTags(theCode, tag, span) {
+
+        theCode = theCode.replaceAll(`<${tag}>`, `<${tag}>${span}`);
+        theCode = theCode.replaceAll(`</${tag}>`, `</span></${tag}>`);
+
+        return theCode;
+    }
+
+    function isNotAlphanumeric(char) {
+        return /[^a-zA-Z0-9]/.test(char);
+    }
+
+    function detectStdKeywords(theCode) {
+
+        let wrap = (keywords, tag) => {
+
+            let ignoreOpenLength = "<ignore>".length;
+            let ignoreCloseLength = "</ignore>".length;
+
+            let ignore = false;
+
+            keywords.forEach(keyword => {
+
+                for(let i = 0; i <= theCode.length; i++) {
+
+                    if(theCode.substring(i, i + ignoreOpenLength) === "<ignore>") {
+                        ignore = true;
+                    }
+                    else
+                    if(theCode.substring(i, i + ignoreCloseLength) === "</ignore>") {
+                        ignore = false;
+                    }
+
+                    if(theCode.substring(i, i + keyword.length) === keyword && !ignore) {
+
+                        additionalKeywordChars.forEach(char => {
+
+                            if(
+                                (theCode.substring(i, i + keyword.length + char.length) === keyword + char) ||
+                                (theCode.substring(i + keyword.length, i + keyword.length + char.length) === '\n' && char === ' ')) {
+
+                                let theCharBeforeTheKeyword = theCode.substring(i - 1, i);
+
+                                if(theCharBeforeTheKeyword !== "" && isNotAlphanumeric(theCharBeforeTheKeyword) || (i === 0 && theCharBeforeTheKeyword === '')) {
+
+                                    theCode = theCode.substring(0, i) + `<${tag}>${keyword}</${tag}>` + theCode.substring(i + keyword.length, theCode.length);
+                                    i += `<${tag}>${keyword}</${tag}>`.length + 1;
+
+                                }
                             }
-                        }
+                        });
                     }
                 }
-            }
-        });
-    };
+            });
+        };
 
-    wrap(csharpStateSetOfKeywords, "stdKeyword");
-    wrap(csharpBehaviorSetOfKeywords, "stdSpecKeyword");
+        wrap(csharpStateSetOfKeywords, "stdKeyword");
+        wrap(csharpBehaviorSetOfKeywords, "stdSpecKeyword");
 
-    return code;
-}
-
-function detectSeparateChars(code) {
-    const ignoreOpen = "<ignore>";
-    const ignoreClose = "</ignore>";
-    let ignore = false;
-    let insideChar = false;
-
-    for (let i = 0; i < code.length; i++) {
-        if (code.substring(i, i + ignoreOpen.length) === ignoreOpen) ignore = true;
-        else if (code.substring(i, i + ignoreClose.length) === ignoreClose) ignore = false;
-
-        if (!ignore && code[i] === "'") {
-            if (!insideChar) {
-                code = code.slice(0, i) + "<ignore><chr>" + code.slice(i);
-                i += "<ignore><chr>".length;
-                insideChar = true;
-            } else {
-                code = code.slice(0, i + 1) + "</chr></ignore>" + code.slice(i + 1);
-                i += "</chr></ignore>".length;
-                insideChar = false;
-            }
-        }
+        return theCode;
     }
 
-    return code;
-}
+    function detectSeparateChars(theCode) {
+
+        let ignoreOpenLength = "<ignore>".length;
+        let ignoreCloseLength = "</ignore>".length;
+
+        let ignore = false;
+        let insideChar = false;
+
+        for(let i = 0; i <= theCode.length; i++) {
+
+            if(theCode.substring(i, i + ignoreOpenLength) === "<ignore>") {
+                ignore = true;
+            }
+            else
+            if(theCode.substring(i, i + ignoreCloseLength) === "</ignore>") {
+                ignore = false;
+            }
+
+            if(theCode[i] === "'" && !ignore && !insideChar) {
+
+                insideChar = true;
+
+                theCode = theCode.slice(0, i) + "<ignore><chr>" + theCode.slice(i);
+                i += "<ignore><chr>".length;
+            }
+            else
+            if(theCode[i] === "'" && !ignore && insideChar) {
+
+                insideChar = false;
+
+                theCode = theCode.slice(0, i + 1) + "</chr></ignore>" + theCode.slice(i + 1);
+                i += "</chr></ignore>".length;
+            }
+        }
+
+        return theCode;
+    }
 
     function detectStaticUsingDeclarations(theCode) {
         const staticHtmlRegexp = /static<\/span><\/stdKeyword>\s*([A-Za-z0-9]+(?:\s*\.\s*[A-Za-z0-9]+)+)\s*;/g;
