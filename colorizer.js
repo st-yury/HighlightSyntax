@@ -690,23 +690,27 @@ function detectGenericVarDeclarations(theCode) {
     const classWithGen = /(?:^|\s)([A-Z][a-zA-Z0-9_]*)\s*(?=&lt;)/g;
     const methodWithGen = /(\S+)(?:\s+)([A-Z][a-zA-Z0-9_]*\s*&lt;)/g;
 
-    // Find potential generic class references
-    let classMatches = findAllMatches(classWithGen, theCode);
+    const classMatches = [...theCode.matchAll(classWithGen)].map(m => ({
+        text: m[1],
+        index: m.index + m[0].indexOf(m[1])
+    }));
 
-    // Find method references with generics and filter out non-related matches
-    let methodMatches = findAllMatches(methodWithGen, theCode)
-        .filter(m => !m[0].includes("span") && !m[0].includes("}") && !m[0].includes("{") && !m[0].includes(","));
+    const methodMatches = [...theCode.matchAll(methodWithGen)]
+        .filter(m => !m[0].includes("span") && !m[0].includes("}") && !m[0].includes("{") && !m[0].includes(","))
+        .map(m => m[2].replaceAll("&lt;", "").trim());
 
-    // Filter class matches to avoid overlap with method matches
-    classMatches = classMatches.filter(cls =>
-        !methodMatches.some(mth => mth[2].replaceAll("&lt;", "").trim() === cls[0].trim())
+    // Filter out class matches that overlap with method matches
+    const filteredMatches = classMatches.filter(cls =>
+        !methodMatches.includes(cls.text.trim())
     );
 
-    // Process and tag class matches
-    for (const item of classMatches) {
-        if (!isInsideIgnoreTags(item, theCode)) {
-            const newMatch = item[0].replace(capitalCharRegex, str => `<varGDecl>${str}</varGDecl>`);
-            theCode = theCode.replaceAll(item[0], newMatch);
+    // Sort in reverse to prevent index shifting
+    filteredMatches.sort((a, b) => b.index - a.index);
+
+    for (const match of filteredMatches) {
+        if (!isInsideIgnoreTags(match, theCode)) {
+            const wrapped = `<varGDecl>${match.text}</varGDecl>`;
+            theCode = theCode.slice(0, match.index) + wrapped + theCode.slice(match.index + match.text.length);
         }
     }
 
@@ -820,6 +824,26 @@ function detectPropertyType(theCode) {
     return highlightRegexMatches(matches, capRegex, str => `<propTypeName>${str}</propTypeName>`, theCode);
 }
 
+function detectReturnValueCompositeMethodName(theCode) {
+    const regex = /\b\w+\b <staticCN>/g;
+    const capRegex = /\b[A-Z][a-zA-Z0-9_]*\b/g;
+
+    let matches = findAllMatches(regex, theCode).map(m => ({ text: m[0], index: m.index }));
+    matches = sortByDescendingIndex(filterIgnoreTags(matches, theCode));
+
+    return highlightRegexMatches(matches, capRegex, str => `<returnValueCompositeMethodName>${str}</returnValueCompositeMethodName>`, theCode);
+}
+
+function detectTypeWithSpecKeyword(theCode) {
+    const regex = /<\/stdKeyword>\([A-Z][a-zA-Z0-9_]*\)/g;
+    const capRegex = /\b[A-Z][a-zA-Z0-9_]*\b/g;
+
+    let matches = findAllMatches(regex, theCode).map(m => ({ text: m[0], index: m.index }));
+    matches = sortByDescendingIndex(filterIgnoreTags(matches, theCode));
+
+    return highlightRegexMatches(matches, capRegex, str => `<typeWithSpecKeyword>${str}</typeWithSpecKeyword>`, theCode);
+}
+
 /**
  * Main function that applies syntax highlighting to C# code.
  * Processes the code through multiple detection functions to identify and tag code elements.
@@ -919,6 +943,12 @@ function colorize(theCode) {
 
     theCode = detectPropertyType(theCode);
     theCode = addColorSpanTags(theCode, "propTypeName", '<span style="color: #419db8">');
+
+    theCode = detectReturnValueCompositeMethodName(theCode);
+    theCode = addColorSpanTags(theCode, "returnValueCompositeMethodName", '<span style="color: #419db8">');
+
+    theCode = detectTypeWithSpecKeyword(theCode);
+    theCode = addColorSpanTags(theCode, "typeWithSpecKeyword", '<span style="color: #419db8">');
 
     return `${divPreStart}${theCode}${divPreEnd}`;
 }
