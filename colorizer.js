@@ -30,6 +30,9 @@ const additionalKeywordChars = [
     " ", "[", "]", "(", ")", "=", ".", "{", "}", ";", "/", ",", "&gt;", ":"
 ];
 
+// Regular expression to match PascalCase identifiers (starting with capital letter)
+const capitalCharRegex = /\b[A-Z][a-zA-Z0-9_]*\b/g;
+
 /**
  * Replaces special characters with their HTML entity equivalents
  * @param {string} code - The source code to process
@@ -287,11 +290,10 @@ function detectStaticUsingDeclarations(code) {
 function detectTypeDeclarations(code, type) {
     // Match pattern: "type TypeName [<Generic>] [(parameters)] [: BaseType] [where constraints] {"
     const mainRegex = new RegExp(`${type}<\\/span><\\/stdKeyword>\\s*([A-Za-z0-9_]+(?:&lt;[^{]+?(?:&gt;|>))?)\\s*(?:\\([^\\)]*\\))?\\s*(?::\\s*(?:[A-Za-z0-9_&lt;&gt;,\\s]+))?\\s*(?:<stdKeyword><span[^>]*>where<\\/span><\\/stdKeyword>[^{]*?)*\\s*\\{`, "gs");
-    const capitalCaseRegex = /\b[A-Z][a-zA-Z0-9_]*\b/g;
 
     getMatches(mainRegex, code).forEach(([fullMatch]) => {
         // Tag capital-case identifiers as type declarations
-        const replaced = fullMatch.replace(capitalCaseRegex, m => `<${type}Decl>${m}</${type}Decl>`);
+        const replaced = fullMatch.replace(capitalCharRegex, m => `<${type}Decl>${m}</${type}Decl>`);
         code = code.replaceAll(fullMatch, replaced);
     });
 
@@ -307,15 +309,14 @@ function detectTypeDeclarations(code, type) {
  */
 function detectRecordTypeDeclarations(code) {
     const recordRegex = /record<\/span><\/stdKeyword>.*?(?:;|\{)/gs;
-    const capitalCaseRegex = /\b[A-Z][a-zA-Z0-9_]*\b/g;
 
     const processRecordDeclaration = str => {
         const parts = str.includes('(') ? str.split(/\(|\)/) : [str];
         // Process the record name part
-        parts[0] = parts[0].replace(capitalCaseRegex, m => `<recordDecl>${m}</recordDecl>`) + (str.includes('(') ? '(' : '');
+        parts[0] = parts[0].replace(capitalCharRegex, m => `<recordDecl>${m}</recordDecl>`) + (str.includes('(') ? '(' : '');
         if (str.includes('(')) {
             // Process the closing part with parameters
-            parts[parts.length - 1] = ')' + parts.at(-1).replace(capitalCaseRegex, m => `<recordDecl>${m}</recordDecl>`);
+            parts[parts.length - 1] = ')' + parts.at(-1).replace(capitalCharRegex, m => `<recordDecl>${m}</recordDecl>`);
         }
         return parts.join('');
     };
@@ -327,7 +328,7 @@ function detectRecordTypeDeclarations(code) {
         if (braceCount === 1) {
             code = code.replaceAll(fullMatch, processRecordDeclaration(fullMatch));
         } else if (braceCount === 0) {
-            code = code.replaceAll(fullMatch, fullMatch.replace(capitalCaseRegex, m => `<recordDecl>${m}</recordDecl>`));
+            code = code.replaceAll(fullMatch, fullMatch.replace(capitalCharRegex, m => `<recordDecl>${m}</recordDecl>`));
         } else {
             // Handle record inheritance with ":" syntax
             const [beforeColon, afterColon] = fullMatch.split(" :");
@@ -363,9 +364,6 @@ function detectAttributes(code) {
 
     return code;
 }
-
-// Regular expression to match PascalCase identifiers (starting with capital letter)
-const capitalCharRegex = /\b[A-Z][a-zA-Z0-9_]*\b/g;
 
 /**
  * Helper function to collect matches from multiple regexes
@@ -565,7 +563,6 @@ function isInsideIgnoreTags({ index, text }, fullText) {
  */
 function detectStaticClassNames(theCode) {
     const staticClassNameRegex = /\b[A-Z][a-zA-Z0-9_]*\s*\n*\s*\./g;
-    const capitalCharRegex = /\b[A-Z][a-zA-Z0-9_]*\b/g;
     const moreThan1DotRegex = /\b\w+(\s*\.\s*\w+){1,}\s*\./g;
 
     // Preserve namespace section separately
@@ -677,10 +674,9 @@ function highlightRegexMatches(matches, regex, replacer, code) {
  */
 function detectSimpleTuples(theCode) {
     const tuplesRegex = /\(\s*([A-Z][a-zA-Z]*\s*,\s*)+[A-Z][a-zA-Z]*\s*\)/g;
-    const capRegex = /\b[A-Z][a-zA-Z0-9_]*\b/g;
 
     return theCode.replace(tuplesRegex, match =>
-        match.replace(capRegex, str => `<tuple>${str}</tuple>`)
+        match.replace(capitalCharRegex, str => `<tuple>${str}</tuple>`)
     );
 }
 
@@ -693,7 +689,6 @@ function detectSimpleTuples(theCode) {
 function detectGenericVarDeclarations(theCode) {
     const classWithGen = /(?:^|\s)([A-Z][a-zA-Z0-9_]*)\s*(?=&lt;)/g;
     const methodWithGen = /(\S+)(?:\s+)([A-Z][a-zA-Z0-9_]*\s*&lt;)/g;
-    const capRegex = /\b[A-Z][a-zA-Z0-9_]*\b/g;
 
     // Find potential generic class references
     let classMatches = findAllMatches(classWithGen, theCode);
@@ -710,7 +705,7 @@ function detectGenericVarDeclarations(theCode) {
     // Process and tag class matches
     for (const item of classMatches) {
         if (!isInsideIgnoreTags(item, theCode)) {
-            const newMatch = item[0].replace(capRegex, str => `<varGDecl>${str}</varGDecl>`);
+            const newMatch = item[0].replace(capitalCharRegex, str => `<varGDecl>${str}</varGDecl>`);
             theCode = theCode.replaceAll(item[0], newMatch);
         }
     }
@@ -745,12 +740,11 @@ function detectGenericMethods(theCode) {
  */
 function detectFieldsDeclaration(theCode) {
     const regex = /([A-Z][a-zA-Z0-9]*(?:[A-Z][a-zA-Z0-9]*)*)\s+([a-z_][a-zA-Z0-9_]*)\b/g;
-    const capRegex = /\b[A-Z][a-zA-Z0-9_]*\b/g;
 
     let matches = findAllMatches(regex, theCode).map(m => ({ text: m[0], index: m.index }));
     matches = sortByDescendingIndex(filterIgnoreTags(matches, theCode));
 
-    return highlightRegexMatches(matches, capRegex, str =>
+    return highlightRegexMatches(matches, capitalCharRegex, str =>
             // Use different tag for single-letter type parameters (like T, K)
             (str.length === 1 && str >= 'A' && str <= 'Z')
                 ? `<typeParam>${str}</typeParam>` : `<varInstance>${str}</varInstance>`,
@@ -765,12 +759,11 @@ function detectFieldsDeclaration(theCode) {
  */
 function detectReturnValueMethodNG(theCode) {
     const regex = /\b(\w+)\s+<methodNG>/g;
-    const capRegex = /\b[A-Z][a-zA-Z0-9_]*\b/g;
 
     let matches = findAllMatches(regex, theCode).map(m => ({ text: m[0], index: m.index }));
     matches = sortByDescendingIndex(filterIgnoreTags(matches, theCode));
 
-    return highlightRegexMatches(matches, capRegex, str => `<returnValueMethodNG>${str}</returnValueMethodNG>`, theCode);
+    return highlightRegexMatches(matches, capitalCharRegex, str => `<returnValueMethodNG>${str}</returnValueMethodNG>`, theCode);
 }
 
 /**
@@ -780,12 +773,11 @@ function detectReturnValueMethodNG(theCode) {
  */
 function detectReturnValueMethodG(theCode) {
     const regex = /\b(\w+)\s+<methodGDecl>/g;
-    const capRegex = /\b[A-Z][a-zA-Z0-9_]*\b/g;
 
     let matches = findAllMatches(regex, theCode).map(m => ({ text: m[0], index: m.index }));
     matches = sortByDescendingIndex(filterIgnoreTags(matches, theCode));
 
-    return highlightRegexMatches(matches, capRegex, str => `<returnValueMethodG>${str}</returnValueMethodG>`, theCode);
+    return highlightRegexMatches(matches, capitalCharRegex, str => `<returnValueMethodG>${str}</returnValueMethodG>`, theCode);
 }
 
 /**
