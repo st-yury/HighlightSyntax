@@ -824,24 +824,62 @@ function detectPropertyType(theCode) {
     return highlightRegexMatches(matches, capRegex, str => `<propTypeName>${str}</propTypeName>`, theCode);
 }
 
-function detectReturnValueCompositeMethodName(theCode) {
-    const regex = /\b\w+\b <staticCN>/g;
+/**
+ * Identifies property type declarations.
+ *
+ * Finds words preceding <propertyDeclr> tags and wraps capitalized identifiers
+ * in <propTypeName> tags.
+ *
+ * @param {string} theCode - Source code to process
+ * @return {string} Code with tagged property types
+ */
+function detectPropertyType(theCode) {
+    // Match any word followed by space and <propertyDeclr> tag
+    const regex = /\b(\w+)\s+<propertyDeclr>/g;
     const capRegex = /\b[A-Z][a-zA-Z0-9_]*\b/g;
 
     let matches = findAllMatches(regex, theCode).map(m => ({ text: m[0], index: m.index }));
     matches = sortByDescendingIndex(filterIgnoreTags(matches, theCode));
 
-    return highlightRegexMatches(matches, capRegex, str => `<returnValueCompositeMethodName>${str}</returnValueCompositeMethodName>`, theCode);
+    return highlightRegexMatches(matches, capRegex, str => `<propTypeName>${str}</propTypeName>`, theCode);
 }
 
-function detectTypeWithSpecKeyword(theCode) {
-    const regex = /<\/stdKeyword>\([A-Z][a-zA-Z0-9_]*\)/g;
-    const capRegex = /\b[A-Z][a-zA-Z0-9_]*\b/g;
+/**
+ * Detects and tags return value names in composite method declarations.
+ *
+ * Finds words preceding <staticCN> tags that start with a capital letter and
+ * wraps them in appropriate tags.
+ *
+ * @param {string} theCode - Source code to process
+ * @return {string} Code with tagged return value names
+ */
+function detectReturnValueCompositeMethodName(theCode) {
+    // Match any word followed by space and <staticCN> tag
+    const regex = /\b\w+\b <staticCN>/g;
 
     let matches = findAllMatches(regex, theCode).map(m => ({ text: m[0], index: m.index }));
     matches = sortByDescendingIndex(filterIgnoreTags(matches, theCode));
 
-    return highlightRegexMatches(matches, capRegex, str => `<typeWithSpecKeyword>${str}</typeWithSpecKeyword>`, theCode);
+    return highlightRegexMatches(matches, capitalCharRegex, str => `<returnValueCompositeMethodName>${str}</returnValueCompositeMethodName>`, theCode);
+}
+
+/**
+ * Detects types used with special keywords.
+ *
+ * Finds capitalized identifiers inside parentheses that follow a closing
+ * standard keyword tag and wraps them in appropriate tags.
+ *
+ * @param {string} theCode - Source code to process
+ * @return {string} Code with tagged special keyword types
+ */
+function detectTypeWithSpecKeyword(theCode) {
+    // Match closing stdKeyword tag followed by parenthesized capitalized identifier
+    const regex = /<\/stdKeyword>\([A-Z][a-zA-Z0-9_]*\)/g;
+
+    let matches = findAllMatches(regex, theCode).map(m => ({ text: m[0], index: m.index }));
+    matches = sortByDescendingIndex(filterIgnoreTags(matches, theCode));
+
+    return highlightRegexMatches(matches, capitalCharRegex, str => `<typeWithSpecKeyword>${str}</typeWithSpecKeyword>`, theCode);
 }
 
 /**
