@@ -695,7 +695,7 @@ function detectGenericVarDeclarations(theCode) {
 
     // Find method references with generics and filter out non-related matches
     let methodMatches = findAllMatches(methodWithGen, theCode)
-        .filter(m => !m[0].includes("span") && !m[0].includes("}") && !m[0].includes(","));
+        .filter(m => !m[0].includes("span") && !m[0].includes("}") && !m[0].includes("{") && !m[0].includes(","));
 
     // Filter class matches to avoid overlap with method matches
     classMatches = classMatches.filter(cls =>
