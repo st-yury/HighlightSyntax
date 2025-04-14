@@ -1,0 +1,1113 @@
+// Global Namespace Imports
+global using System.Runtime.CompilerServices;
+global using System.Diagnostics;
+using System.Collections;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
+using static TestCodeSampleHere.UnifiedProperties;
+
+namespace TestCodeSampleHere
+{
+    public class UnifiedProperties
+    {
+        public struct Point : IEnumerable<String>
+        {
+            public int X { get; init; }
+            public int Y { get; init; }
+
+            public string LastName
+            {
+                get => lastName;
+                init =>
+                // Ensure the value is not null; otherwise, throw an exception.
+                    lastName = value ?? throw new ArgumentNullException(nameof(LastName));
+            }
+
+            IEnumerator<string> IEnumerable<string>.GetEnumerator()
+            {
+                Console.WriteLine("asdf");
+                throw new NotImplementedException();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public class ClassName {
+
+            SomeClass MethodName()
+            {
+                Repository2<Customer> customerRepo = new Repository2<Customer>();
+
+            }
+            K MethodName2()
+            {
+
+            }
+            // Dictionary initializer with tuples as keys
+            Dictionary<(int Id, string Code), string> tupleDict = new Dictionary<(int, string), string> {
+    { (1, "A"), "Value1" },
+    { (2, "B"), "Value2" }
+};
+        }
+        }
+        public UnifiedProperties() 
+        {
+            //Console.WriteLine("");
+            SayHello 
+                
+                (
+                );
+            // Basic instantiation with `new` keyword
+            ClassName variableName = new ClassName();
+
+            // With constructor parameters
+            ClassName variableName2 = new ClassName(param1, param2);
+
+            // With object initializer syntax
+            ClassName variableName3 = new ClassName() { Property1 = value1, Property2 = value2 };
+
+            // Object initializer without parentheses (C# 3.0+)
+            ClassName 
+                variableName4 
+                =new ClassName { Property1 = value1, Property2 = value2 };
+
+            // Using type inference with `var` (C# 3.0+)
+            var variableName5 = new ClassName();
+            var variableName6 = new ClassName(param1, param2);
+            var variableName7 = new ClassName { Property1 = value1, Property2 = value2 };
+
+            // Target-typed `new` expressions (C# 9.0+)
+            ClassName variableName8 = new();
+            ClassName variableName9 = new(param1, param2);
+            ClassName variableName10 = new() { Property1 = value1, Property2 = value2 };
+
+            // Generic class instantiation
+            List<string> stringList = new List<string>();
+            Dictionary<int, string> dictionary = new Dictionary<int, string>();
+
+            // Generic with type inference
+            var stringList = new List<string>();
+            var dictionary = new Dictionary<int, string>();
+
+            // Generic with target-typed new (C# 9.0+)
+            List<string> stringList = new();
+            Dictionary<int, string> dictionary = new();
+
+            // Generic class with multiple type parameters
+            Dictionary
+                <
+                int
+                , 
+                List
+                <
+                    string
+                    >
+                    >
+                    nestedGeneric 
+                    = 
+                    new Dictionary<int, List<string>>();
+
+            // Generic class with constraints
+            Repository<Customer> customerRepo = new Repository<Customer>();
+
+            // Tuples as generic type parameters
+            Dictionary<(int, string), bool> tupleKeyDictionary = new Dictionary<(int, string), bool>();
+            List<(string Name, int Age)> tupleList = new List<(string, int)>();
+
+            // Tuple with named elements as a generic type
+            List<(string Name, int Age)> people = new List<(string Name, int Age)>();
+
+            // Generic with tuple return type
+            KeyValuePair<string, (int Id, string Name)> complexPair = new KeyValuePair<string, (int, string)>("key", (1, "value"));
+
+            // Collection initializers with generics
+            List<string> names = new List<string> { "Alice", "Bob", "Charlie" };
+            Dictionary<int, string> dict = new Dictionary<int, string> {
+    { 1, "One" },
+    { 2, "Two" }
+};
+
+            // Dictionary initializer with tuples as keys
+            Dictionary<(int Id, string Code), string> tupleDict = new Dictionary<(int, string), string> {
+    { (1, "A"), "Value1" },
+    { (2, "B"), "Value2" }
+};
+        }
+        // Create an instance of the Person class
+        Address
+            person
+            = new Address("John", "asdf");
+
+        Address person2 = new Address("John", "asdf");
+
+        public String Greetingsdsa => "Hello, World!";
+        public String ASdsdasdsdsa    =>     "Hello, World!";
+        public String Cczxcsdsa 
+            
+            => "Hello, World!";
+
+        // Auto-Implemented Properties
+        public string Name   {     get; set; }
+        public int Age 
+        
+        { 
+            
+            get; private set; }
+        public bool IsActive { get; }
+
+        // Backing Fields with Custom Logic
+        private int _value;
+        public int Value
+        {
+            get { return _value; }
+            set { _value = value > 0 ? value : 0; } // Ensures only positive values
+        }
+
+        // Read-Only Properties
+        public int ReadOnlyProperty { get; } = 42;
+        public int AnotherReadOnlyProperty => ReadOnlyProperty + 10; // Expression-bodied
+
+        // Write-Only Properties
+        private string _password;
+        public string Password
+        {
+            set { _password = value; }
+        }
+
+        // Static Properties
+        public static int GlobalCounter { get; set; }
+
+        // Abstract Properties
+        public abstract class Shape
+        {
+            public abstract double Area { get; }
+        }
+        public class Circle : Shape
+        {
+            public override double Area => Math.PI * Radius * Radius;
+            public double Radius { get; set; }
+        }
+
+        // Virtual Properties
+        public virtual string VirtualName { get; set; }
+
+        // Access Modifiers
+        public int ProtectedSetter { get; protected set; }
+        public int PrivateSetter { get; private set; }
+
+        // Default Value Properties
+        public string DefaultProperty { get; set; } = "Default Value";
+
+        // Expression-Bodied Properties
+        public string Greeting => "Hello, World!";
+        public int DoubleValue => Value * 2;
+
+        // Static Read-Only Properties
+        public static string AppName => "My Application";
+
+        // Indexer Properties
+        private string[] items = new string[10];
+        public string this[int index]
+        {
+            get { return items[index]; }
+            set { items[index] = value; }
+        }
+    }
+
+    public class MyCustomAttribute : Attribute
+    {
+        public static T GenericMethod<T>(T input)
+        {
+            return input;
+        }
+
+        // Constructor for positional parameters
+        public MyCustomAttribute(string message)
+        {
+
+
+            Message = message;
+
+            int result = MyCustomAttribute.GenericMethod<int>(42);
+            string text = MyCustomAttribute.GenericMethod<string>("Hello, world!");
+            string text2 = MyCustomAttribute.GenericMethod<String>("Hello, world!");
+
+            Console.WriteLine("This is MyMethod.");
+            Console
+                .WriteLine("This is MyMethod.");
+            Console.
+                WriteLine("This is MyMethod.");
+            Console.
+                WriteLine
+                ("This is MyMethod.");
+            Console.WriteLine("This is MyMethod.");
+            Console.
+                WriteLine
+                ("This is MyMethod.");
+            Console.
+
+                     WriteLine
+
+                ("This is MyMethod.");
+
+
+            List<int> items = new List<int>();
+            var dictionary = new Dictionary<string, int>();
+            dictionary.Add("John", 30);
+
+            var dictionary = new Dictionary<(ComplexTypeA, ComplexTypeB), string>(
+                
+                )
+                
+                ;
+
+            var dictionary = new System.Collections.Generic.Dictionary<(ComplexTypeA, ComplexTypeB), string>(
+
+                )
+
+                ;
+            var dictionaryw = new Dictionary<string, int>
+            {
+                { "One", 1 },
+                { "Two", 2 },
+                { "Three", 3 }
+            
+            }
+            
+            ;
+
+            throw new System.NotImplementedException();
+
+
+            using var stream = new System.IO.MemoryStream();
+            using var stream2 =new System.IO.MemoryStream();
+            using var stream3 =new      System   .   IO   .   MemoryStream();
+            using var stream4 =     new     System . IO . MemoryStream  ();
+            using var stream5 = 
+                new 
+                System
+                .
+                IO
+                .
+                MemoryStream();
+            using var stream6 = new 
+                System.
+                IO.
+                MemoryStream();
+            using var stream7 = new System.IO.MemoryStream();
+        }
+
+        // Property for named parameters
+        public bool Flag { get; set; }
+
+        // Backing field for constructor parameter
+        public string Message { get; }
+    }
+    // Custom Attribute
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
+    public class CustomAttribute : Attribute
+    {
+        public string Description { get; set; }
+        public CustomAttribute(string description)
+        {
+            Description = description;
+        }
+    }
+
+    // Example of applying attributes in different contexts
+    [Serializable] // Class-level attribute
+    [Obsolete("This class is obsolete. Use NewClass instead.")] // Class-level with parameters
+    [Custom("Custom attribute with metadata.")] // Using custom attributes
+    public class MyClass
+    {
+        [NonSerialized] // Field-level attribute
+        private int myField;
+
+        [JsonProperty("custom_name")] // Property-level attribute
+        public string MyProperty { get; set; }
+
+        [MethodImpl(MethodImplOptions.Synchronized)] // Method-level attribute
+        [Conditional("DEBUG")] // Conditional attribute
+        [return: MarshalAs(UnmanagedType.Bool)] // Return value-level attribute
+        public bool MyMethod([Optional, DefaultValue(10)] int parameter) // Parameter-level attribute
+        {
+            Console.WriteLine("This is MyMethod.");
+            return true;
+        }
+    }
+
+// Assembly-level attribute
+[assembly: CLSCompliant(true)]
+
+// Module-level attribute
+[module: SuppressMessage("Category", "RuleId")]
+
+public enum MyEnum // Enum-level attribute
+    {
+        [Flags]
+        OptionA = 1,
+        OptionB = 2,
+        OptionC = 4,
+    }
+
+    // 1. Basic Record Declaration
+    public record Person(string FirstName, string LastName);
+
+    // 2. Record with Properties
+    public record PersonWithProperties
+    {
+        public string FirstName { get; init; }
+        public string LastName { get; init; }
+    }
+
+    // 3. Record with Inheritance (Derived Record)
+    public record Employee(string FirstName, string LastName, string Position) : Person(FirstName, LastName);
+
+    // 4. Record with Init-Only Properties
+    public record PersonWithInitOnlyProperties
+    {
+        public string FirstName { get; init; }
+        public string LastName { get; init; }
+    }
+
+    // 5. Record with Custom Methods
+    public record PersonWithMethods(string FirstName, string LastName)
+    {
+        public string FullName => $"{FirstName} {LastName}";
+    }
+
+    // 6. Record with Default Values
+    public record PersonWithDefaults(string FirstName = "John", string LastName = "Doe");
+
+    // 7. Record with Deconstruction
+    public record PersonForDeconstruction(string FirstName, string LastName);
+
+    // 8. With-Expression to Clone and Modify Records
+    // 9. Record with Nested Records
+    public record Address(string Street, string City);
+    public record PersonWithAddress(string FirstName, string LastName, Address Address);
+
+    // 10. Record with Equality and Hash Code Override
+    public record PersonWithEqualityOverride(string FirstName, string LastName)
+    {
+        public override bool Equals(object? obj) =>
+            obj is PersonWithEqualityOverride person && person.FirstName == FirstName && person.LastName == LastName;
+
+        public override int GetHashCode() => (FirstName, LastName).GetHashCode();
+    }
+
+    // Base class
+    public class Animal21
+    {
+        public string Name { get; private set; }
+        public int Age { get; private set; }
+
+        // Constructor of the base class
+        public Animal21(string name, int age)
+        {
+            Name = name;
+            Age = age;
+            Console.WriteLine($"Base class constructor: Animal created with Name = {Name}, Age = {Age}");
+        }
+
+        public void Speak()
+        {
+            Console.WriteLine($"{Name} is making a sound!");
+        }
+    }
+
+    // Derived class
+    public class Dog33 : Animal21
+    {
+        public string Breed { get; private set; }
+
+        // Constructor of the derived class, invoking the base class constructor
+        public Dog33(string name, int age, string breed) : base(name, age)
+        {
+            Breed = breed;
+            Console.WriteLine($"Derived class constructor: Dog created with Breed = {Breed}");
+        }
+
+        public void Bark()
+        {
+            Console.WriteLine($"{Name} is barking!");
+        }
+    }
+
+    public class ComplexClass<T, K, V>
+    : BaseEntity, IRepository<ComplexClass<T, K, V>>, IAnimalProducer<out T>, IProcessor<in K, V>, IDictionary<K, V>
+    where T : Animal, new()
+    where K : struct
+    where V : class, IDisposable
+    {
+        public void SomeMethod()
+        {
+            Console.WriteLine("Complex class method.");
+        }
+    }
+
+    // Consumer class that consumes animals
+    public class AnimalConsumer : IAnimalConsumer<Animal>
+    {
+        public void ConsumeAnimal(Animal animal)
+        {
+            Console.WriteLine($"Consumed animal: {animal.Name}");
+        }
+    }
+
+    public class ResourceManager : IDisposable
+    {
+        private FileStream _fileStream;
+        private bool _disposed = false;
+
+        public ResourceManager(string filePath)
+        {
+            _fileStream = new FileStream(filePath, FileMode.Open);
+        }
+
+        public void PerformOperation()
+        {
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(ResourceManager));
+
+            Console.WriteLine("Performing operation with the resource.");
+        }
+
+        // Implementing the IDisposable pattern
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    // Dispose managed resources
+                    _fileStream?.Dispose();
+                }
+
+                // Dispose unmanaged resources here if any
+
+                _disposed = true;
+            }
+        }
+
+        // Finalizer (destructor)
+        ~ResourceManager()
+        {
+            Dispose(false);
+        }
+    }
+
+    // Custom Attribute
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
+    public class DocumentationAttribute : Attribute
+    {
+        public string Description { get; set; }
+        public DocumentationAttribute(string description)
+        {
+            Description = description;
+        }
+    }
+
+    // Enum definition
+    public enum UserStatus
+    {
+        Active,
+        Inactive,
+        Suspended
+    }
+
+    // Delegate declaration
+    public delegate void LogHandler(string message);
+
+    // Generic interface
+    public interface IRepository<T> where T : class
+    {
+        void Add(T item);
+        T GetById(int id);
+    }
+
+    // Abstract base class
+    public abstract class BaseEntity
+    {
+        // Protected field
+        protected int _id;
+
+        // Public property with getter and setter
+        public int Id
+        {
+            get => _id;
+            set => _id = value;
+        }
+
+        // Abstract method
+        public abstract void Validate();
+    }
+
+    // Interface with covariant (out) generic parameter
+    public interface IAnimalProducer<out T> where T : Animal
+    {
+        T ProduceAnimal();
+    }
+
+    // Interface with contravariant (in) generic parameter
+    public interface IAnimalConsumer<in T> where T : Animal
+    {
+        void ConsumeAnimal(T animal);
+    }
+
+    // Base class for animals
+    public class Animal
+    {
+        public string Name { get; set; }
+    }
+
+    // Derived class representing dogs
+    public class Dog : Animal
+    {
+    }
+
+    // Producer class that produces animals
+    public class DogProducer : IAnimalProducer<Dog>
+    {
+        public Dog ProduceAnimal()
+        {
+            return new Dog { Name = "Buddy" };
+        }
+    }
+
+    class SomeClass3 : BaseEntity, IRepository<SomeClass3>, IRepository<SomeClass2>
+    {
+        public void Add(SomeClass3 item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Add(SomeClass2 item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public SomeClass3 GetById(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Validate()
+        {
+            throw new NotImplementedException();
+        }
+
+        SomeClass2 IRepository<SomeClass2>.GetById(int id)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    // Main class with multiple features
+    [Documentation("Main demonstration class for C# language features")]
+    public class LanguageFeatureShowcase : BaseEntity, IRepository<LanguageFeatureShowcase>
+    {
+        // Event declaration
+        public event LogHandler Logger;
+
+        // Readonly field
+        private readonly DateTime _createdAt = DateTime.Now;
+
+        // Nullable reference type
+        private string? _optionalName;
+
+        // Auto-implemented property
+        public string Name { get; set; }
+
+        // Computed property
+        public string FullDescription => $"ID: {Id}, Name: {Name}";
+
+        // Constructor with optional parameters
+        public LanguageFeatureShowcase(string name = "Default")
+        {
+            Name = name;
+        }
+
+        // Method with multiple parameter types
+        public void ProcessData(
+            int number,
+            string text,
+            params object[] additionalParams)
+        {
+            // Switch expression
+            var result = number switch
+            {
+                < 0 => "Negative",
+                0 => "Zero",
+                > 0 => "Positive"
+            };
+
+            // Null-coalescing operator
+            text ??= "Default Text";
+        }
+
+        // Async method
+        public async Task<bool> ProcessDataAsync()
+        {
+            // Local function
+            static int Calculate(int x) => x * 2;
+
+            // Using declaration
+            using var stream = new System.IO.MemoryStream();
+
+            // Tuple return
+            (string Name, int Age) GetPersonInfo() => ("John", 30);
+
+            // Lambda expression
+            Func<int, int> square = x => x * x;
+
+            // LINQ query
+            var numbers = new[] { 1, 2, 3, 4, 5 };
+            var evenNumbers = numbers
+                .Where(n => n % 2 == 0)
+                .Select(n => n * 2)
+                .ToList();
+
+            int fdsa = square(123);
+
+            return await Task.FromResult(true);
+        }
+
+        // Generic method
+        public T GenericMethod<T>(T input) where T : class
+        {
+            return input;
+        }
+
+        // Override abstract method
+        public override void Validate()
+        {
+            // Conditional operator
+            bool isValid = Id > 0 ? true : false;
+
+            // Pattern matching
+            object obj = "Test";
+            switch (obj)
+            {
+                case string s when s.Length > 0:
+                    Console.WriteLine("Non-empty string");
+                    break;
+                case int i:
+                    Console.WriteLine("Integer");
+                    break;
+                default:
+                    Console.WriteLine("Unknown type");
+                    break;
+            }
+        }
+
+        // Interface method implementation
+        public void Add(LanguageFeatureShowcase item)
+        {
+            // Try-catch-finally block
+            try
+            {
+                // Throw expression
+                ArgumentNullException.ThrowIfNull(item);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                Console.WriteLine("Operation completed");
+            }
+        }
+
+        // Out and ref parameters
+        public void ModifyValues(out int outParam, ref int refParam)
+        {
+            outParam = 10;
+            refParam += 5;
+        }
+
+        public LanguageFeatureShowcase GetById(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        // Internal nested class
+        internal class NestedUtility
+        {
+            public void InternalMethod() { }
+        }
+    }
+
+    // Partial class demonstration
+    public partial class PartialClassDemo
+    {
+        public void Method1() { }
+    }
+
+    public partial class PartialClassDemo
+    {
+        public void Method2() { }
+    }
+
+    // Record type
+    public record Person(string FirstName, string LastName);
+
+    // Struct with init-only setters
+    public struct Point : IEnumerable<String>
+    {
+        public int X { get; init; }
+        public int Y { get; init; }
+
+        IEnumerator<string> IEnumerable<string>.GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+    }
+    /// <summary>
+    /// Represents a person with a first name and a last name.
+    /// </summary>
+    public class Person2
+    {
+
+        void Method()
+        {
+            int x = 5;
+            if (x > 10)
+            {
+                Console.WriteLine("x is greater than 10");
+            }
+            else if (x == 5)
+            {
+                Console.WriteLine("x is equal to 5");
+            }
+            else
+            {
+                Console.WriteLine("x is less than 10");
+            }
+            int k = 0;
+            do
+            {
+                Console.WriteLine(k);
+                k++;
+            } while (k < 5);
+        }
+
+        // Private fields to store the first and last names.
+        private readonly string firstName;
+        private readonly string lastName;
+
+        /// <summary>
+        /// Gets or sets the first name of the person.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when the value assigned to FirstName is null.
+        /// </exception>
+        public string FirstName
+        {
+            get => firstName;
+            init =>
+                // Ensure the value is not null; otherwise, throw an exception.
+                firstName = value ?? throw new ArgumentNullException(nameof(FirstName));
+        }
+
+        /// <summary>
+        /// Gets or sets the last name of the person.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when the value assigned to LastName is null.
+        /// </exception>
+        public string LastName
+        {
+            get => lastName;
+            init =>
+                // Ensure the value is not null; otherwise, throw an exception.
+                lastName = value ?? throw new ArgumentNullException(nameof(LastName));
+        }
+
+        /* Multi-line comment:
+         * This class is immutable after initialization.
+         * The FirstName and LastName properties can only be set during object creation.
+         */
+
+    }
+
+    class Loops
+    {
+        static void Main123(string[] args)
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                Console.WriteLine(i);
+            }
+
+            int j = 0;
+            while (j < 5)
+            {
+                Console.WriteLine(j);
+                j++;
+            }
+
+            int k = 0;
+            do
+            {
+                Console.WriteLine(k);
+                k++;
+            } while (k < 5);
+        }
+    }
+
+    class Functions
+    {
+        public class InternalClass 
+        {
+            public class InternalInternalClass() 
+            {
+                
+            }
+
+            public InternalClass() { }
+
+            public InternalClass(string name) { }
+        }
+
+        static void Main2(string[] args)
+        {
+            int result = Add(2, 3);
+            Console.WriteLine(result);
+
+            string greeting = Greet("John");
+            Console.WriteLine(greeting);
+        }
+
+        static int Add(int x, int y)
+        {
+            return x + y;
+        }
+
+        static string Greet(string name)
+        {
+            return "Hello, " + name + "!";
+        }
+    }
+
+    class Person23
+    {
+        public string Name { get; set; }
+        public int Age { get; set; }
+
+        public Person23(string name, int age)
+        {
+            Name = name;
+            Age = age;
+        }
+
+        public void SayHello()
+        {
+            Console.WriteLine("Hello, my name is " + Name + " and I am " + Age + " years old.");
+        }
+    }
+
+    class GenericContainer<T>
+    {
+        private List<T> items = new List<T>();
+
+        public void Add(T item)
+        {
+            items.Add(item);
+        }
+
+        public void PrintItems()
+        {
+            foreach (T item in items)
+            {
+                Console.WriteLine(item);
+            }
+        }
+    }
+
+    class AsyncAwait
+    {
+        static async Task Main3(string[] args)
+        {
+            await Task.Delay(1000);
+            Console.WriteLine("Hello, World!");
+        }
+    }
+
+    class Linq
+    {
+        static void Main5(string[] args)
+        {
+            int[] numbers = { 1, 2, 3, 4, 5 };
+            var evenNumbers = numbers.Where(n => n % 2 == 0);
+            foreach (int number in evenNumbers)
+            {
+                Console.WriteLine(number);
+            }
+        }
+    }
+
+    class ExceptionHandling
+    {
+        static void Main6(string[] args)
+        {
+            try
+            {
+                int x = 5 / 4;
+            }
+            catch (DivideByZeroException ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Unknown error: " + ex.Message);
+            }
+        }
+    }
+
+    class AdvancedTopics
+    {
+        static void Main7(string[] args)
+        {
+            var numbers = Enumerable.Range(1, 10).Select(x => x * x);
+            foreach (int number in numbers)
+            {
+                Console.WriteLine(number);
+            }
+
+            var dictionary = new Dictionary<string, int>();
+            dictionary.Add("John", 30);
+            dictionary.Add("Jane", 25);
+            foreach (var pair in dictionary)
+            {
+                Console.WriteLine(pair.Key + ": " + pair.Value);
+            }
+        }
+    }
+
+    
+    class Conditional
+    {
+        static void Main8(string[] args)
+        {
+            int x = 5;
+            if (x > 10)
+            {
+                Console.WriteLine("x is greater than 10");
+            }
+            else if (x == 5)
+            {
+                Console.WriteLine("x is equal to 5");
+            }
+            else
+            {
+                Console.WriteLine("x is less than 10");
+            }
+        }
+    }
+
+    public record Address
+    {
+        public class Sample 
+        {
+            void SomeMethod() 
+            {
+                Console.WriteLine($" new value readonly {null}");
+            }
+        }
+        public string Street { get; }
+        public string City { get; }
+        public string Name { get; internal set; }
+        public string Age { get; internal set; }
+
+        public Address()
+        {
+            this.Street = string.Empty;
+            this.City = string.Empty;
+        }
+        public Address(string Street, string City)
+        {
+            this.Street = Street;
+            this.City = City;
+        }
+
+        /*
+         * 
+         * public Address(string Street, string City)
+        {
+            this.Street = Street;
+            this.City = City;
+         * 
+         */
+
+        internal void SayHello()
+        {
+            //throw new NotImplementedException();
+        }
+
+        internal void SayGoodbye()
+        {
+            //throw new NotImplementedException();
+        }
+    }
+
+    public class SomeClass { }
+    public class SomeClass2() { }
+
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("asdf");
+
+            // Create an instance of the Person class
+            Address 
+                person 
+                = new Address("John", "asdf");
+
+            Address person2= new Address("John", "asdf");
+
+            // Invoke the SayHello method
+            person.SayHello();
+
+            // Invoke the SayGoodbye method
+            person.SayGoodbye();
+
+            // Access and print the Name property
+            //Console.WriteLine("Name: " + person.Name);
+            Console.WriteLine("Name: " + person.Name);
+
+            // Access and print the Age property
+            Console.WriteLine("Age: " + person.Age);
+
+            Thread thread = new Thread(person.SayHello);
+            thread.Start();
+
+            // Proper usage of the using statement
+            using (var resource = new ResourceManager("example.txt"))
+            {
+                resource.PerformOperation();
+            } // Automatically calls Dispose() here
+
+            // Alternative syntax (C# 8.0 and later)
+            using var anotherResource = new ResourceManager("another.txt");
+            anotherResource.PerformOperation();
+        }
+    }
+}
