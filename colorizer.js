@@ -929,11 +929,11 @@ function colorize(theCode) {
     ];
     typeDecls.forEach(([type, cls]) => {
         theCode = detectTypeDeclarations(theCode, type);
-        theCode = addColorSpanTags(theCode, cls, '<span style="color: #419db8">');
+        theCode = addColorSpanTags(theCode, cls, '<span style="color: #058bb9">');
     });
 
     theCode = detectRecordTypeDeclarations(theCode);
-    theCode = addColorSpanTags(theCode, "recordDecl", '<span style="color: #419db8">');
+    theCode = addColorSpanTags(theCode, "recordDecl", '<span style="color: #058bb9">');
 
     theCode = detectAttributes(theCode);
     theCode = addColorSpanTags(theCode, "attr", '<span style="color: #2d8ca8">');
@@ -942,17 +942,17 @@ function colorize(theCode) {
     theCode = detectPropertyDeclarations(theCode);
 
     theCode = detectConstructorInvocations(theCode);
-    theCode = addColorSpanTags(theCode, "cnstrInvc", '<span style="color: #419db8">');
+    theCode = addColorSpanTags(theCode, "cnstrInvc", '<span style="color: #058bb9">');
 
     theCode = detectVariableNewAssignmentsNonGeneric(theCode);
-    theCode = addColorSpanTags(theCode, "varNewAssignmentNG", '<span style="color: #419db8">');
+    theCode = addColorSpanTags(theCode, "varNewAssignmentNG", '<span style="color: #058bb9">');
 
     theCode = detectNonGenericMethods(theCode);
-    theCode = addColorSpanTags(theCode, "constrNG", '<span style="color: #419db8">');
+    theCode = addColorSpanTags(theCode, "constrNG", '<span style="color: #058bb9">');
     theCode = addColorSpanTags(theCode, "methodNG", '<span style="color: #964b00">');
 
     theCode = detectStaticClassNames(theCode);
-    theCode = addColorSpanTags(theCode, "staticCN", '<span style="color: #419db8">');
+    theCode = addColorSpanTags(theCode, "staticCN", '<span style="color: #058bb9">');
 
     theCode = detectGenericMethodsInvocation(theCode);
     theCode = addColorSpanTags(theCode, "methodGInvc", '<span style="color: #964b00">');
@@ -961,32 +961,32 @@ function colorize(theCode) {
     theCode = addColorSpanTags(theCode, "tuple", '<span style="color: #5ab6d1">');
 
     theCode = detectGenericVarDeclarations(theCode);
-    theCode = addColorSpanTags(theCode, "varGDecl", '<span style="color: #419db8">');
+    theCode = addColorSpanTags(theCode, "varGDecl", '<span style="color: #058bb9">');
 
     theCode = detectFieldsDeclaration(theCode);
-    theCode = addColorSpanTags(theCode, "varInstance", '<span style="color: #419db8">');
+    theCode = addColorSpanTags(theCode, "varInstance", '<span style="color: #058bb9">');
     theCode = addColorSpanTags(theCode, "typeParam", '<span style="color: #bbe4f0">');
 
     theCode = detectGenericMethods(theCode);
     theCode = addColorSpanTags(theCode, "methodGDecl", '<span style="color: #964b00">');
 
     theCode = detectReturnValueMethodNG(theCode);
-    theCode = addColorSpanTags(theCode, "returnValueMethodNG", '<span style="color: #419db8">');
+    theCode = addColorSpanTags(theCode, "returnValueMethodNG", '<span style="color: #058bb9">');
 
     theCode = detectReturnValueMethodG(theCode);
-    theCode = addColorSpanTags(theCode, "returnValueMethodG", '<span style="color: #419db8">');
+    theCode = addColorSpanTags(theCode, "returnValueMethodG", '<span style="color: #058bb9">');
 
     theCode = detectGenericBrackets(theCode);
-    theCode = addColorSpanTags(theCode, "gTypeName", '<span style="color: #419db8">');
+    theCode = addColorSpanTags(theCode, "gTypeName", '<span style="color: #058bb9">');
 
     theCode = detectPropertyType(theCode);
-    theCode = addColorSpanTags(theCode, "propTypeName", '<span style="color: #419db8">');
+    theCode = addColorSpanTags(theCode, "propTypeName", '<span style="color: #058bb9">');
 
     theCode = detectReturnValueCompositeMethodName(theCode);
-    theCode = addColorSpanTags(theCode, "returnValueCompositeMethodName", '<span style="color: #419db8">');
+    theCode = addColorSpanTags(theCode, "returnValueCompositeMethodName", '<span style="color: #058bb9">');
 
     theCode = detectTypeWithSpecKeyword(theCode);
-    theCode = addColorSpanTags(theCode, "typeWithSpecKeyword", '<span style="color: #419db8">');
+    theCode = addColorSpanTags(theCode, "typeWithSpecKeyword", '<span style="color: #058bb9">');
 
     return `${divPreStart}${theCode}${divPreEnd}`;
 }
