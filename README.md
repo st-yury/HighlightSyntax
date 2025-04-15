@@ -1,7 +1,10 @@
-A simple script to colorize small C#-snippets of code keywords to use on an HTML page. 
+C# Syntax Highlighter
 
-The very first raw version of the script, it's still in development, contains many bugs, works only against valid code.
+A lightweight script designed to colorize keywords in small C# code snippets for use in HTML pages.
 
-Insert a C#-snippet and then copy&paste as is into your HTML-page.
+This is an initial development version—functionality is limited, and it may contain bugs. Currently, it only processes valid C# code correctly.
 
-<img width="1198" alt="image" src="https://github.com/st-yury/HighlightSyntax/assets/141726094/92a4a8ab-89e8-4e16-9e19-bcf534e4bc8b">
+Usage: Paste your C# code snippet, then copy the formatted output directly into your HTML page.
+
+![image](https://github.com/user-attachments/assets/4b1c67f1-ab32-4924-82d7-85958881b536)
+
