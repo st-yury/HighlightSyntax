@@ -74,33 +74,18 @@ function tagClose(code, i, tag, open, close, offset = 0) {
     return [code, i + close.length + offset];
 }
 
-/**
- * Identifies and tags comments and string literals in the code
- * This is a critical first step as it prevents treating content inside
- * comments and strings as regular code
- *
- * @param {string} code - The source code to process
- * @return {string} - Code with comments and strings tagged
- */
+// Using reg exps is problematic
+// Refactor later, remove And from the name, split into several functions : a separate one for comments, one for strings, another one for the multi-line comments and the doc comments
 function detectCommentsAndStrings(code) {
-    // Track what type of block we're inside (if any)
     let inside = { str: false, single: false, multi: false, doc: false };
 
-    // Mapping of opening sequences to their tag information
-    const openTags = {
-        "//": { key: "single", tag: "oneLineComment" },
-        "/// ": { key: "doc", tag: "docComment" },
-        "\"": { key: "str", tag: "str" },
-        "/*": { key: "multi", tag: "multiLineComment" },
-    };
-
-    for (let i = 0; i < code.length - 4; i++) {
+    let i = 0;
+    while (i < code.length) {
         const two = code.substring(i, i + 2);
         const four = code.substring(i, i + 4);
-        // Check if we're not inside any block or if we're inside the relevant block type
         const isOpen = (tagKey) => !Object.values(inside).some(Boolean) || inside[tagKey];
 
-        // Single-line comment detection
+        // Single-line comment
         if (two === "//" && four !== "/// " && isOpen("single")) {
             [code, i] = tagInsert(code, i, "oneLineComment", "<ignore><oneLineComment>", "</oneLineComment></ignore>");
             inside.single = true;
@@ -108,7 +93,8 @@ function detectCommentsAndStrings(code) {
             [code, i] = tagClose(code, i, "oneLineComment", "<ignore>", "</oneLineComment></ignore>");
             inside.single = false;
         }
-        // Documentation comment detection
+
+        // Documentation comment
         else if (four === "/// " && isOpen("doc")) {
             [code, i] = tagInsert(code, i, "docComment", "<ignore><docComment>", "</docComment></ignore>");
             inside.doc = true;
@@ -116,7 +102,8 @@ function detectCommentsAndStrings(code) {
             [code, i] = tagClose(code, i, "docComment", "<ignore>", "</docComment></ignore>");
             inside.doc = false;
         }
-        // String literal detection
+
+        // String literal
         else if (code[i] === "\"" && isOpen("str") && code[i - 1] !== "\\") {
             if (!inside.str) {
                 [code, i] = tagInsert(code, i, "str", "<ignore><str>", "</str></ignore>");
@@ -126,7 +113,8 @@ function detectCommentsAndStrings(code) {
                 inside.str = false;
             }
         }
-        // Multi-line comment detection
+
+        // Multi-line comment
         else if (two === "/*" && isOpen("multi")) {
             [code, i] = tagInsert(code, i, "multiLineComment", "<ignore><multiLineComment>", "</multiLineComment></ignore>");
             inside.multi = true;
@@ -134,16 +122,34 @@ function detectCommentsAndStrings(code) {
             [code, i] = tagClose(code, i, "multiLineComment", "<ignore>", "</multiLineComment></ignore>", 2);
             inside.multi = false;
         }
-        // String interpolation symbol detection
+
+        // String interpolation $
         else if (code[i] === "$" && !Object.values(inside).some(Boolean)) {
             code = code.slice(0, i) + "<strDollar>$</strDollar>" + code.slice(i + 1);
             i += "<strDollar></strDollar>".length;
         }
-        // Verbatim string symbol detection
+
+        // Verbatim string @
         else if (code[i] === "@" && !Object.values(inside).some(Boolean)) {
             code = code.slice(0, i) + "<strAt>@</strAt>" + code.slice(i + 1);
             i += "<strAt></strAt>".length;
         }
+
+        i++;
+    }
+
+    // Ensure all open blocks are closed
+    if (inside.single) {
+        [code] = tagClose(code, code.length, "oneLineComment", "<ignore>", "</oneLineComment></ignore>");
+    }
+    if (inside.doc) {
+        [code] = tagClose(code, code.length, "docComment", "<ignore>", "</docComment></ignore>");
+    }
+    if (inside.str) {
+        [code] = tagClose(code, code.length, "str", "<ignore>", "</str></ignore>");
+    }
+    if (inside.multi) {
+        [code] = tagClose(code, code.length, "multiLineComment", "<ignore>", "</multiLineComment></ignore>");
     }
 
     return code;
@@ -179,40 +185,61 @@ function isNotAlphanumeric(char) {
  * @return {string} - Code with keywords tagged
  */
 function detectStdKeywords(code) {
-    const wrap = (keywords, tag) => {
-        const ignoreOpen = "<ignore>";
-        const ignoreClose = "</ignore>";
-        let ignore = false;
+    const ignoreOpen = "<ignore>";
+    const ignoreClose = "</ignore>";
 
-        keywords.forEach(keyword => {
-            for (let i = 0; i < code.length; i++) {
-                // Skip processing sections marked with ignore tags
-                if (code.substring(i, i + ignoreOpen.length) === ignoreOpen) ignore = true;
-                else if (code.substring(i, i + ignoreClose.length) === ignoreClose) ignore = false;
+    const makeRegex = (keywords) =>
+        new RegExp(`\\b(${keywords.join("|")})\\b`, "g");
 
-                if (!ignore && code.substring(i, i + keyword.length) === keyword) {
-                    // Check if the next character confirms this is a complete token
-                    for (const char of additionalKeywordChars) {
-                        const nextChar = code.substring(i + keyword.length, i + keyword.length + char.length);
-                        const full = code.substring(i, i + keyword.length + char.length);
-                        if (nextChar === char || (nextChar === '\n' && char === ' ')) {
-                            // Also check if the previous character confirms this is a complete token
-                            const prev = code.substring(i - 1, i);
-                            if ((prev && isNotAlphanumeric(prev)) || i === 0) {
-                                code = code.substring(0, i) + `<${tag}>${keyword}</${tag}>` + code.substring(i + keyword.length);
-                                i += `<${tag}>${keyword}</${tag}>`.length;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    };
+    function getIgnoreRanges(text) {
+        const ranges = [];
+        let index = 0;
+        while (true) {
+            const start = text.indexOf(ignoreOpen, index);
+            if (start === -1) break;
+            const end = text.indexOf(ignoreClose, start);
+            if (end === -1) break;
+            ranges.push([start, end + ignoreClose.length]);
+            index = end + ignoreClose.length;
+        }
+        return ranges;
+    }
 
-    // Process state keywords first, then behavior keywords
-    wrap(csharpStateSetOfKeywords, "stdKeyword");
-    wrap(csharpBehaviorSetOfKeywords, "stdSpecKeyword");
+    function isInIgnore(index, ranges) {
+        return ranges.some(([start, end]) => index >= start && index < end);
+    }
+
+    function wrapWithTags(code, keywords, tagName) {
+        const ignoreRanges = getIgnoreRanges(code);
+        const regex = makeRegex(keywords);
+
+        // Go through all matches and build the new code piece by piece
+        let result = "";
+        let lastIndex = 0;
+
+        for (const match of code.matchAll(regex)) {
+            const start = match.index;
+            const end = start + match[0].length;
+
+            // Skip match if inside ignore
+            if (isInIgnore(start, ignoreRanges)) continue;
+
+            // Append the text before this match
+            result += code.slice(lastIndex, start);
+            // Append the wrapped keyword
+            result += `<${tagName}>${match[0]}</${tagName}>`;
+
+            lastIndex = end;
+        }
+
+        // Append the remaining text after last match
+        result += code.slice(lastIndex);
+
+        return result;
+    }
+
+    code = wrapWithTags(code, [...csharpStateSetOfKeywords], "stdKeyword");
+    code = wrapWithTags(code, [...csharpBehaviorSetOfKeywords], "stdSpecKeyword");
 
     return code;
 }
@@ -355,7 +382,6 @@ function detectAttributes(code) {
     getMatches(attrRegex, code)
         .filter(([fullMatch]) => fullMatch !== "[]") // Skip empty brackets
         .forEach(([fullMatch]) => {
-            // Process parts outside of ignore tags
             const parts = fullMatch.split(ignoreTagsRegex).map(part =>
                 part.startsWith("<ignore>") ? part : part.replace(capitalRegex, m => `<attr>${m}</attr>`)
             );
