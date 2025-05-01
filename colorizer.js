@@ -16,7 +16,7 @@ const csharpStateSetOfKeywords = [
     "record", "namespace", "new", "int", "int?", "null", "object", "object?", "operator", "out", "ulong",
     "override", "params", "private", "protected", "public", "unchecked", "where", "ref", "sbyte", "init",
     "sealed", "short", "string", "string?", "virtual", "struct", "switch", "this", "with", "true", "try",
-    "void", "var", "value", "unsafe", "ushort", "typeof", "volatile", "is", "required", "when", "global"
+    "void", "var", "value", "unsafe", "ushort", "typeof", "volatile", "is", "required", "when", "global", "yield", "dynamic"
 ];
 
 // C# behavior/flow control keywords

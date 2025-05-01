@@ -8,6 +8,41 @@ using static TestCodeSampleHere.UnifiedProperties;
 
 namespace TestCodeSampleHere
 {
+public class Program2
+{
+    public static void DownloadFile(string fileName)
+    {
+        // Simulate downloading a file
+        Console.WriteLine("Downloading file: " + fileName);
+        Thread.Sleep(3000); 
+        Console.WriteLine("File downloaded: " + fileName);
+    }
+
+    public async static Task Main()
+    {
+        // Create two threads
+        Thread thread1 = new(() => DownloadFile("file1.txt"));
+        Thread thread2 = new(() => DownloadFile("file2.txt"));
+
+        // Start the threads
+        thread1.Start();
+        thread2.Start();
+
+        // Wait for both threads to finish
+        // Downloading file: file1.txt
+        thread1.Join();
+        thread2.Join();
+
+        Console.WriteLine("All files downloaded");
+    }
+}
+
+/*
+ * Downloading file: file1.txt
+ * File downloaded: file1.txt
+ * File downloaded: file2.txt
+ * All files downloaded
+ */
     public class UnifiedProperties
     {
         public struct Point : IEnumerable<String>
